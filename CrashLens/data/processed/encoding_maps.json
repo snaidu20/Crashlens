@@ -1,0 +1,101 @@
+{
+  "BODY_TYPE_CAT": {
+    "Large_Truck_Bus": 0,
+    "Motorcycle": 1,
+    "Other": 2,
+    "Passenger_Car": 3,
+    "Pickup_Truck": 4,
+    "SUV_Crossover": 5,
+    "Unknown": 6,
+    "Van_Minivan": 7
+  },
+  "LIGHT_CAT": {
+    "Dark_Lighted": 0,
+    "Dark_Unlighted": 1,
+    "Dawn_Dusk": 2,
+    "Daylight": 3,
+    "Unknown": 4
+  },
+  "WEATHER_CAT": {
+    "Clear": 0,
+    "Cloudy": 1,
+    "Fog": 2,
+    "Rain": 3,
+    "Severe": 4,
+    "Snow_Sleet": 5,
+    "Unknown": 6
+  },
+  "COLLISION_TYPE": {
+    "Angle": 0,
+    "Head_On": 1,
+    "Non_Collision": 2,
+    "Other": 3,
+    "Rear_End": 4,
+    "Sideswipe": 5,
+    "Unknown": 6
+  },
+  "AGE_GROUP": {
+    "Adult_25_34": 0,
+    "Adult_35_44": 1,
+    "Adult_45_54": 2,
+    "Adult_55_64": 3,
+    "Child": 4,
+    "Elderly_75plus": 5,
+    "Senior_65_74": 6,
+    "Unknown": 7,
+    "Young_Adult": 8
+  },
+  "SEX_CLEAN": {
+    "Female": 0,
+    "Male": 1,
+    "Unknown": 2
+  },
+  "RESTRAINT_CAT": {
+    "Child_Restraint": 0,
+    "None": 1,
+    "SeatBelt_Full": 2,
+    "SeatBelt_Partial": 3,
+    "Unknown": 4
+  },
+  "AIRBAG_CAT": {
+    "Deployed": 0,
+    "Not_Deployed": 1,
+    "Unknown": 2
+  },
+  "EJECTION_CAT": {
+    "Ejected": 0,
+    "Not_Applicable": 1,
+    "Not_Ejected": 2,
+    "Unknown": 3
+  },
+  "DEFORMATION_CAT": {
+    "Disabling": 0,
+    "Functional": 1,
+    "Minor": 2,
+    "None": 3,
+    "Unknown": 4
+  },
+  "SURFACE_CAT": {
+    "Dry": 0,
+    "Not_Trafficway": 1,
+    "Snow_Ice": 2,
+    "Unknown": 3,
+    "Wet": 4
+  },
+  "SPEED_LIMIT_CAT": {
+    "High_50_55": 0,
+    "Low_25orLess": 1,
+    "Medium_30_35": 2,
+    "Medium_40_45": 3,
+    "Unknown": 4,
+    "Very_High_60plus": 5
+  },
+  "TIME_PERIOD": {
+    "Evening_Rush": 0,
+    "Late_Night": 1,
+    "Midday": 2,
+    "Morning_Rush": 3,
+    "Night": 4,
+    "Unknown": 5
+  }
+}

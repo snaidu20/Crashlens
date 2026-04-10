@@ -1,0 +1,263 @@
+{
+  "global_importance": [
+    {
+      "feature": "VE_TOTAL",
+      "display_name": "Total Vehicles in Crash",
+      "importance": 0.12266242577674381
+    },
+    {
+      "feature": "AGE_CLEAN",
+      "display_name": "Person Age",
+      "importance": 0.09443407909771824
+    },
+    {
+      "feature": "VEHICLE_AGE",
+      "display_name": "Vehicle Age (Years)",
+      "importance": 0.06526680622275229
+    },
+    {
+      "feature": "TRAV_SP_CLEAN",
+      "display_name": "Travel Speed (MPH)",
+      "importance": 0.05960941119121932
+    },
+    {
+      "feature": "SPEED_OVER_LIMIT",
+      "display_name": "Speed Over Limit (MPH)",
+      "importance": 0.03953053742864096
+    }
+  ],
+  "class_importance": {
+    "O_NoInjury": [
+      {
+        "feature": "VE_TOTAL",
+        "display_name": "Total Vehicles in Crash",
+        "importance": 0.12488711711575354
+      },
+      {
+        "feature": "AGE_CLEAN",
+        "display_name": "Person Age",
+        "importance": 0.08582698308072848
+      },
+      {
+        "feature": "VEHICLE_AGE",
+        "display_name": "Vehicle Age (Years)",
+        "importance": 0.06643628310537678
+      },
+      {
+        "feature": "TRAV_SP_CLEAN",
+        "display_name": "Travel Speed (MPH)",
+        "importance": 0.05240113772488856
+      },
+      {
+        "feature": "SPEED_OVER_LIMIT",
+        "display_name": "Speed Over Limit (MPH)",
+        "importance": 0.041555991177242256
+      }
+    ],
+    "C_Possible": [
+      {
+        "feature": "VE_TOTAL",
+        "display_name": "Total Vehicles in Crash",
+        "importance": 0.10571322990078252
+      },
+      {
+        "feature": "AGE_CLEAN",
+        "display_name": "Person Age",
+        "importance": 0.070729929434316
+      },
+      {
+        "feature": "VEHICLE_AGE",
+        "display_name": "Vehicle Age (Years)",
+        "importance": 0.060959304890333785
+      },
+      {
+        "feature": "TRAV_SP_CLEAN",
+        "display_name": "Travel Speed (MPH)",
+        "importance": 0.05691022553316409
+      },
+      {
+        "feature": "SPEED_OVER_LIMIT",
+        "display_name": "Speed Over Limit (MPH)",
+        "importance": 0.028853805795214273
+      }
+    ],
+    "B_NonIncap": [
+      {
+        "feature": "VE_TOTAL",
+        "display_name": "Total Vehicles in Crash",
+        "importance": 0.11075497699849132
+      },
+      {
+        "feature": "AGE_CLEAN",
+        "display_name": "Person Age",
+        "importance": 0.06793713826380184
+      },
+      {
+        "feature": "TRAV_SP_CLEAN",
+        "display_name": "Travel Speed (MPH)",
+        "importance": 0.05991353565623321
+      },
+      {
+        "feature": "VEHICLE_AGE",
+        "display_name": "Vehicle Age (Years)",
+        "importance": 0.052816509504577835
+      },
+      {
+        "feature": "SPEED_OVER_LIMIT",
+        "display_name": "Speed Over Limit (MPH)",
+        "importance": 0.028424411897247894
+      }
+    ],
+    "A_Incap": [
+      {
+        "feature": "VE_TOTAL",
+        "display_name": "Total Vehicles in Crash",
+        "importance": 0.1117408312622643
+      },
+      {
+        "feature": "AGE_CLEAN",
+        "display_name": "Person Age",
+        "importance": 0.07792215040004917
+      },
+      {
+        "feature": "VEHICLE_AGE",
+        "display_name": "Vehicle Age (Years)",
+        "importance": 0.06221381260091346
+      },
+      {
+        "feature": "TRAV_SP_CLEAN",
+        "display_name": "Travel Speed (MPH)",
+        "importance": 0.05744385065679625
+      },
+      {
+        "feature": "SPEED_OVER_LIMIT",
+        "display_name": "Speed Over Limit (MPH)",
+        "importance": 0.04520746898925926
+      }
+    ],
+    "K_Fatal": [
+      {
+        "feature": "VE_TOTAL",
+        "display_name": "Total Vehicles in Crash",
+        "importance": 0.08600119565714169
+      },
+      {
+        "feature": "AGE_CLEAN",
+        "display_name": "Person Age",
+        "importance": 0.06770538649377503
+      },
+      {
+        "feature": "TRAV_SP_CLEAN",
+        "display_name": "Travel Speed (MPH)",
+        "importance": 0.06309365036967124
+      },
+      {
+        "feature": "VEHICLE_AGE",
+        "display_name": "Vehicle Age (Years)",
+        "importance": 0.05380288640365045
+      },
+      {
+        "feature": "SPEED_OVER_LIMIT",
+        "display_name": "Speed Over Limit (MPH)",
+        "importance": 0.02635690975964747
+      }
+    ]
+  },
+  "fatal_risk_factors": {
+    "increase": [
+      {
+        "feature": "AGE_CLEAN",
+        "display_name": "Person Age",
+        "mean_shap": 0.053539136602110585
+      },
+      {
+        "feature": "TRAV_SP_CLEAN",
+        "display_name": "Travel Speed (MPH)",
+        "mean_shap": 0.048544119738496
+      },
+      {
+        "feature": "SPEED_OVER_LIMIT",
+        "display_name": "Speed Over Limit (MPH)",
+        "mean_shap": -0.005864146819614141
+      },
+      {
+        "feature": "VEHICLE_AGE",
+        "display_name": "Vehicle Age (Years)",
+        "mean_shap": -0.027640772148115375
+      },
+      {
+        "feature": "VE_TOTAL",
+        "display_name": "Total Vehicles in Crash",
+        "mean_shap": -0.04317589537669175
+      }
+    ],
+    "decrease": [
+      {
+        "feature": "AGE_CLEAN",
+        "display_name": "Person Age",
+        "mean_shap": 0.053539136602110585
+      },
+      {
+        "feature": "TRAV_SP_CLEAN",
+        "display_name": "Travel Speed (MPH)",
+        "mean_shap": 0.048544119738496
+      },
+      {
+        "feature": "SPEED_OVER_LIMIT",
+        "display_name": "Speed Over Limit (MPH)",
+        "mean_shap": -0.005864146819614141
+      },
+      {
+        "feature": "VEHICLE_AGE",
+        "display_name": "Vehicle Age (Years)",
+        "mean_shap": -0.027640772148115375
+      },
+      {
+        "feature": "VE_TOTAL",
+        "display_name": "Total Vehicles in Crash",
+        "mean_shap": -0.04317589537669175
+      }
+    ]
+  },
+  "feature_descriptions": {
+    "AGE_CLEAN": "Person Age",
+    "TRAV_SP_CLEAN": "Travel Speed (MPH)",
+    "SPEED_OVER_LIMIT": "Speed Over Limit (MPH)",
+    "VEHICLE_AGE": "Vehicle Age (Years)",
+    "VE_TOTAL": "Total Vehicles in Crash",
+    "NUMOCCS": "Occupants in Vehicle",
+    "VSPD_LIM": "Posted Speed Limit",
+    "VNUM_LAN": "Number of Lanes",
+    "NUM_CRASH_FACTORS": "Crash-Related Factors",
+    "BODY_TYPE_CAT_ENC": "Vehicle Body Type",
+    "LIGHT_CAT_ENC": "Lighting Condition",
+    "WEATHER_CAT_ENC": "Weather Condition",
+    "COLLISION_TYPE_ENC": "Collision Type",
+    "AGE_GROUP_ENC": "Age Group",
+    "SEX_CLEAN_ENC": "Sex",
+    "RESTRAINT_CAT_ENC": "Restraint Use",
+    "AIRBAG_CAT_ENC": "Airbag Deployment",
+    "EJECTION_CAT_ENC": "Ejection Status",
+    "DEFORMATION_CAT_ENC": "Vehicle Deformation",
+    "SURFACE_CAT_ENC": "Road Surface",
+    "SPEED_LIMIT_CAT_ENC": "Speed Limit Category",
+    "TIME_PERIOD_ENC": "Time of Day",
+    "IS_WEEKEND": "Weekend",
+    "IS_DRIVER": "Is Driver",
+    "MULTI_VEHICLE": "Multi-Vehicle Crash",
+    "ROLLOVER_FLAG": "Rollover",
+    "SPEED_RELATED": "Speed-Related",
+    "IN_WORK_ZONE": "Work Zone",
+    "AT_JUNCTION": "At Junction",
+    "DISTRACTED": "Driver Distracted",
+    "DRIVER_IMPAIRED": "Driver Impaired",
+    "DRINKING_FLAG": "Alcohol Involved",
+    "URBANICITY": "Urban/Rural",
+    "REGION": "U.S. Region",
+    "DAY_WEEK": "Day of Week",
+    "HOUR": "Hour of Day",
+    "MONTH": "Month"
+  },
+  "sample_size": 3000,
+  "model": "LightGBM"
+}

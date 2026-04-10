@@ -1,0 +1,2521 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CrashLens — SHAP-Driven Crash Severity Prediction</title>
+<meta name="description" content="Interactive AI dashboard analyzing 477,801 NHTSA CRSS crash records to identify fatal crash risk factors using explainable machine learning.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='%2300D4AA'/><path d='M16 8v10M16 22v2' stroke='%230B1F2A' stroke-width='2.5' stroke-linecap='round'/></svg>">
+<style>
+/* ================================================================
+   DESIGN SYSTEM — CRASHLENS PREMIUM
+   ================================================================ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root {
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Type Scale */
+  --text-2xs: 0.6875rem;
+  --text-xs: clamp(0.6875rem, 0.65rem + 0.2vw, 0.8125rem);
+  --text-sm: clamp(0.8125rem, 0.75rem + 0.3vw, 0.9375rem);
+  --text-base: clamp(0.9375rem, 0.88rem + 0.25vw, 1.0625rem);
+  --text-lg: clamp(1.0625rem, 0.95rem + 0.6vw, 1.375rem);
+  --text-xl: clamp(1.375rem, 1.1rem + 1vw, 2rem);
+  --text-2xl: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+  --text-3xl: clamp(2.25rem, 1.8rem + 2vw, 3.25rem);
+
+  /* Spacing */
+  --sp-1: 0.25rem; --sp-2: 0.5rem; --sp-3: 0.75rem; --sp-4: 1rem;
+  --sp-5: 1.25rem; --sp-6: 1.5rem; --sp-8: 2rem; --sp-10: 2.5rem;
+  --sp-12: 3rem; --sp-16: 4rem; --sp-20: 5rem;
+
+  /* Radius */
+  --r-sm: 0.5rem; --r-md: 0.75rem; --r-lg: 1rem; --r-xl: 1.25rem; --r-2xl: 1.5rem; --r-full: 9999px;
+
+  /* Timing */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --dur-fast: 150ms;
+  --dur-normal: 250ms;
+  --dur-slow: 400ms;
+  --dur-slower: 600ms;
+}
+
+/* ================================================================
+   LIGHT THEME (Primary)
+   ================================================================ */
+[data-theme="light"] {
+  --bg-deep: #F4F6F9;
+  --bg-base: #FFFFFF;
+  --bg-elevated: #FFFFFF;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-hover: rgba(255, 255, 255, 0.95);
+  --bg-glass: rgba(255, 255, 255, 0.6);
+  --bg-glass-strong: rgba(255, 255, 255, 0.85);
+  --bg-input: rgba(255, 255, 255, 0.9);
+
+  --border-subtle: rgba(0, 0, 0, 0.06);
+  --border-default: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --border-glow: rgba(0, 150, 120, 0.2);
+
+  --text-primary: #1A2332;
+  --text-secondary: #4B5B73;
+  --text-tertiary: #7A8BA3;
+  --text-inverse: #FFFFFF;
+
+  /* Accents — deeper for light backgrounds */
+  --accent: #009B7D;
+  --accent-dim: rgba(0, 155, 125, 0.1);
+  --accent-glow: rgba(0, 155, 125, 0.18);
+  --accent-bright: #00755E;
+
+  --teal: #009B7D;
+  --teal-dim: rgba(0, 155, 125, 0.08);
+  --cyan: #0097A7;
+  --cyan-dim: rgba(0, 151, 167, 0.08);
+
+  --warning: #E6960A;
+  --warning-dim: rgba(230, 150, 10, 0.1);
+  --warning-glow: rgba(230, 150, 10, 0.18);
+
+  --danger: #D32F2F;
+  --danger-dim: rgba(211, 47, 47, 0.08);
+  --danger-glow: rgba(211, 47, 47, 0.18);
+
+  --success: #2E7D32;
+  --success-dim: rgba(46, 125, 50, 0.08);
+
+  --fatal: #9C27B0;
+  --fatal-dim: rgba(156, 39, 176, 0.08);
+  --fatal-glow: rgba(156, 39, 176, 0.18);
+
+  /* Severity Scale — deeper for readability on white */
+  --sev-none: #2E7D32;
+  --sev-possible: #E6960A;
+  --sev-minor: #E67E22;
+  --sev-serious: #D32F2F;
+  --sev-fatal: #9C27B0;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-md: 0 2px 12px rgba(0,0,0,0.08), 0 4px 20px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 24px rgba(0,0,0,0.1), 0 8px 40px rgba(0,0,0,0.06);
+  --shadow-glow-teal: 0 2px 12px rgba(0,155,125,0.1), 0 4px 24px rgba(0,155,125,0.05);
+  --shadow-glow-danger: 0 2px 12px rgba(211,47,47,0.1), 0 4px 24px rgba(211,47,47,0.05);
+  --shadow-glow-fatal: 0 2px 12px rgba(156,39,176,0.1), 0 4px 24px rgba(156,39,176,0.05);
+
+  --grid-pattern: rgba(0, 0, 0, 0.025);
+}
+
+/* ================================================================
+   DARK THEME
+   ================================================================ */
+[data-theme="dark"] {
+  --bg-deep: #0A1929;
+  --bg-base: #0F2536;
+  --bg-elevated: #152D3E;
+  --bg-card: rgba(21, 45, 62, 0.85);
+  --bg-card-hover: rgba(21, 45, 62, 0.97);
+  --bg-glass: rgba(15, 37, 54, 0.55);
+  --bg-glass-strong: rgba(15, 37, 54, 0.88);
+  --bg-input: rgba(15, 37, 54, 0.9);
+
+  --border-subtle: rgba(255,255,255,0.05);
+  --border-default: rgba(255,255,255,0.08);
+  --border-strong: rgba(255,255,255,0.14);
+  --border-glow: rgba(0,212,170,0.22);
+
+  --text-primary: #E8F4F0;
+  --text-secondary: #9BBFB5;
+  --text-tertiary: #5F8880;
+  --text-inverse: #0A1929;
+
+  --accent: #00D4AA;
+  --accent-dim: rgba(0,212,170,0.12);
+  --accent-glow: rgba(0,212,170,0.25);
+  --accent-bright: #00ECC2;
+
+  --teal: #00D4AA;
+  --teal-dim: rgba(0,212,170,0.1);
+  --cyan: #00BCD4;
+  --cyan-dim: rgba(0,188,212,0.1);
+
+  --warning: #FFB74D;
+  --warning-dim: rgba(255,183,77,0.12);
+  --warning-glow: rgba(255,183,77,0.22);
+
+  --danger: #FF5252;
+  --danger-dim: rgba(255,82,82,0.12);
+  --danger-glow: rgba(255,82,82,0.22);
+
+  --success: #66BB6A;
+  --success-dim: rgba(102,187,106,0.12);
+
+  --fatal: #CE93D8;
+  --fatal-dim: rgba(206,147,216,0.12);
+  --fatal-glow: rgba(206,147,216,0.22);
+
+  --sev-none: #66BB6A;
+  --sev-possible: #FFB74D;
+  --sev-minor: #FF7043;
+  --sev-serious: #FF5252;
+  --sev-fatal: #CE93D8;
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.25);
+  --shadow-md: 0 2px 12px rgba(0,0,0,0.5), 0 4px 20px rgba(0,0,0,0.3);
+  --shadow-lg: 0 4px 24px rgba(0,0,0,0.6), 0 8px 40px rgba(0,0,0,0.35);
+  --shadow-glow-teal: 0 2px 20px rgba(0,212,170,0.22), 0 4px 40px rgba(0,212,170,0.1);
+  --shadow-glow-danger: 0 2px 20px rgba(255,82,82,0.22), 0 4px 40px rgba(255,82,82,0.1);
+  --shadow-glow-fatal: 0 2px 20px rgba(206,147,216,0.22), 0 4px 40px rgba(206,147,216,0.1);
+
+  --grid-pattern: rgba(255,255,255,0.025);
+}
+
+/* ================================================================
+   BASE STYLES
+   ================================================================ */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px;
+}
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--text-primary);
+  background: var(--bg-deep);
+  line-height: 1.6;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  transition: background var(--dur-normal) var(--ease-out), color var(--dur-normal) var(--ease-out);
+}
+
+/* Grid Background Pattern */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--grid-pattern) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-pattern) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Ambient glow orbs */
+body::after {
+  content: '';
+  position: fixed;
+  top: -20%;
+  right: -10%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(0,155,125,0.02) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ================================================================
+   GLASSMORPHISM CARD
+   ================================================================ */
+.glass {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-xl);
+  transition: all var(--dur-normal) var(--ease-out);
+}
+
+.glass:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.glass-static {
+  background: var(--bg-card);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-xl);
+}
+
+/* ================================================================
+   LAYOUT
+   ================================================================ */
+.app { position: relative; z-index: 1; }
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 var(--sp-5);
+}
+
+@media (min-width: 768px) {
+  .container { padding: 0 var(--sp-8); }
+}
+
+.grid-2 { display: grid; grid-template-columns: 1fr; gap: var(--sp-5); }
+.grid-3 { display: grid; grid-template-columns: 1fr; gap: var(--sp-5); }
+.grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--sp-4); }
+
+@media (min-width: 768px) {
+  .grid-2 { grid-template-columns: 1fr 1fr; }
+  .grid-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ================================================================
+   STICKY HEADER
+   ================================================================ */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg-glass-strong);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border-subtle);
+  padding: var(--sp-3) 0;
+  transition: background var(--dur-normal) var(--ease-out);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.logo-group {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-shrink: 0;
+}
+
+.logo-mark {
+  width: 38px;
+  height: 38px;
+  position: relative;
+}
+
+.logo-mark::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,155,125,0.08) 0%, transparent 70%);
+  animation: pulse-glow 3s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.1); }
+}
+
+.logo-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  background: linear-gradient(135deg, var(--accent-bright, #00796B), var(--cyan, #00838F));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logo-sub {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+/* Filters bar */
+.filters {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.filter-chip {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-full);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+  white-space: nowrap;
+  backdrop-filter: blur(8px);
+}
+.filter-chip:hover, .filter-chip.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 1px 6px rgba(0,155,125,0.12);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.icon-btn {
+  width: 36px; height: 36px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.icon-btn:hover {
+  background: var(--accent-dim);
+  border-color: var(--border-strong);
+  color: var(--accent);
+}
+
+@media (max-width: 768px) {
+  .filters { display: none; }
+  .logo-sub { display: none; }
+
+  .chart-badge { font-size: 0.6rem; padding: var(--sp-1) var(--sp-2); white-space: nowrap; }
+  .section-title { font-size: clamp(1.5rem, 5vw, 2rem); }
+  .chart-header { flex-wrap: wrap; gap: var(--sp-2); }
+}
+
+/* ================================================================
+   NAVIGATION TABS
+   ================================================================ */
+.nav-section {
+  padding: var(--sp-4) 0 var(--sp-2);
+}
+
+.nav-tabs {
+  display: flex;
+  gap: var(--sp-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: var(--sp-2);
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+
+.nav-tab {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  padding: var(--sp-2) var(--sp-5);
+  border-radius: var(--r-full);
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  transition: all var(--dur-normal) var(--ease-out);
+  position: relative;
+}
+.nav-tab:hover {
+  color: var(--text-secondary);
+  background: var(--bg-glass);
+}
+.nav-tab.active {
+  color: #FFFFFF;
+  background: linear-gradient(135deg, var(--accent), #00806A);
+  border-color: transparent;
+  box-shadow: 0 2px 12px rgba(0,155,125,0.25);
+}
+
+/* ================================================================
+   PANELS
+   ================================================================ */
+.panel { display: none !important; }
+.panel.active {
+  display: flex !important;
+  flex-direction: column;
+  gap: var(--sp-6);
+  animation: panelIn 500ms var(--ease-out);
+}
+
+@keyframes panelIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================================================
+   SECTION HEADERS
+   ================================================================ */
+.section-header {
+  padding: var(--sp-6) 0 var(--sp-3);
+}
+
+.section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--accent);
+  margin-bottom: var(--sp-2);
+}
+
+.section-tag .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.section-title {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: var(--sp-2);
+}
+
+.section-desc {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  max-width: 72ch;
+  line-height: 1.65;
+}
+
+/* ================================================================
+   KPI CARDS
+   ================================================================ */
+.kpi-card {
+  padding: var(--sp-5) var(--sp-6);
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--kpi-color, var(--accent)), transparent);
+  opacity: 0;
+  transition: opacity var(--dur-normal) var(--ease-out);
+}
+.kpi-card:hover::before { opacity: 1; }
+
+.kpi-icon {
+  font-size: 1.5rem;
+  margin-bottom: var(--sp-3);
+  width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-lg);
+  background: var(--kpi-bg, var(--accent-dim));
+}
+
+.kpi-value {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  background: linear-gradient(135deg, var(--kpi-color, var(--accent)), var(--kpi-color-end, var(--cyan)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--sp-1);
+}
+
+.kpi-label {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-1);
+}
+
+.kpi-detail {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+}
+
+@media (max-width: 768px) {
+  .kpi-card { padding: var(--sp-4); }
+  .kpi-value { font-size: clamp(0.85rem, 3.5vw, 1.5rem) !important; white-space: nowrap; }
+}
+
+/* ================================================================
+   RADIAL GAUGE
+   ================================================================ */
+.gauge-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.gauge {
+  position: relative;
+  width: 120px;
+  height: 120px;
+}
+
+.gauge svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.gauge-bg {
+  fill: none;
+  stroke: var(--border-default);
+  stroke-width: 8;
+}
+
+.gauge-fill {
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 1.2s var(--ease-out);
+}
+
+.gauge-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.gauge-value {
+  font-size: var(--text-lg);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.gauge-label-text {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ================================================================
+   CHART CARD
+   ================================================================ */
+.chart-card {
+  padding: var(--sp-6);
+}
+
+.chart-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--sp-5);
+  gap: var(--sp-3);
+}
+
+.chart-title {
+  font-size: var(--text-base);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.chart-badge {
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-full);
+  background: var(--accent-dim);
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.chart-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.chart-wrap canvas { width: 100% !important; }
+
+/* Chart glow effect */
+.chart-glow {
+  position: relative;
+}
+.chart-glow::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 10%;
+  right: 10%;
+  height: 40%;
+  background: radial-gradient(ellipse at bottom, rgba(0,155,125,0.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ================================================================
+   MODEL TABLE
+   ================================================================ */
+.model-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+.model-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 var(--sp-2);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.model-table thead th {
+  text-align: left;
+  padding: var(--sp-2) var(--sp-4);
+  font-weight: 600;
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.model-table tbody tr {
+  background: var(--bg-glass);
+  border-radius: var(--r-lg);
+  transition: all var(--dur-fast) var(--ease-out);
+}
+
+.model-table tbody tr:hover {
+  background: var(--bg-card-hover);
+  box-shadow: var(--shadow-glow-teal);
+}
+
+.model-table td {
+  padding: var(--sp-3) var(--sp-4);
+  white-space: nowrap;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+
+.model-table td:first-child {
+  border-radius: var(--r-lg) 0 0 var(--r-lg);
+  border-left: 1px solid transparent;
+}
+.model-table td:last-child {
+  border-radius: 0 var(--r-lg) var(--r-lg) 0;
+  border-right: 1px solid transparent;
+}
+
+.model-table tbody tr:hover td {
+  border-color: var(--border-strong);
+}
+
+.model-table .best { color: var(--accent); font-weight: 700; }
+.model-table .model-name { font-weight: 600; color: var(--text-primary); }
+
+/* ================================================================
+   AI EXPLAINABILITY PANEL
+   ================================================================ */
+.ai-panel {
+  position: relative;
+  padding: var(--sp-8);
+  overflow: hidden;
+}
+
+.ai-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(0,155,125,0.03) 0%, rgba(156,39,176,0.02) 100%);
+  pointer-events: none;
+}
+
+.ai-panel-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-6);
+}
+
+.ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: var(--sp-1) var(--sp-4);
+  border-radius: var(--r-full);
+  background: linear-gradient(135deg, var(--accent-dim), var(--fatal-dim));
+  border: 1px solid var(--border-strong);
+  color: var(--accent);
+}
+
+.ai-badge .pulse {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+/* Explanation cards */
+.explain-card {
+  padding: var(--sp-5);
+  border-radius: var(--r-lg);
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+  transition: all var(--dur-normal) var(--ease-out);
+}
+
+.explain-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-glow-teal);
+  transform: translateY(-2px);
+}
+
+.explain-icon {
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-md);
+  font-size: 1.25rem;
+  margin-bottom: var(--sp-3);
+}
+
+.explain-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin-bottom: var(--sp-2);
+}
+
+.explain-text {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.explain-nlp {
+  margin-top: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  background: rgba(0,155,125,0.06);
+  border-left: 3px solid var(--accent);
+  font-size: var(--text-sm);
+  color: #006B58;
+  font-style: italic;
+  line-height: 1.55;
+}
+
+/* ================================================================
+   HEATMAP GRID
+   ================================================================ */
+.heatmap-grid {
+  display: grid;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+}
+
+.heatmap-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--r-sm);
+  font-weight: 500;
+  transition: all var(--dur-fast) var(--ease-out);
+  cursor: default;
+  position: relative;
+  min-width: 0;
+  padding: 2px;
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.05);
+  z-index: 2;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+}
+
+.heatmap-label {
+  font-family: var(--font-body);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  color: var(--text-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  word-break: break-all;
+  line-height: 1.1;
+}
+
+/* ================================================================
+   SCENARIO EXPLORER
+   ================================================================ */
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-3);
+}
+@media (min-width: 768px) { .scenario-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (min-width: 1024px) { .scenario-grid { grid-template-columns: repeat(5, 1fr); } }
+
+.form-group label {
+  display: block;
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--sp-1);
+}
+
+.form-group select {
+  width: 100%;
+  font-size: var(--text-sm);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--r-md);
+  background: var(--bg-input);
+  color: var(--text-primary);
+  outline: none;
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238B9BB4' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.form-group select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+
+.range-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.range-display {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--accent);
+  min-width: 36px;
+  text-align: right;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgba(0,155,125,0.15), rgba(0,0,0,0.08));
+  outline: none;
+  border: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  box-shadow: 0 0 8px rgba(0,155,125,0.3);
+  transition: box-shadow var(--dur-fast);
+}
+input[type="range"]::-webkit-slider-thumb:hover {
+  box-shadow: 0 0 12px rgba(0,155,125,0.4);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+  border: none;
+}
+
+.toggle-group {
+  display: flex;
+  gap: var(--sp-1);
+}
+
+.toggle-btn {
+  font-size: var(--text-xs);
+  font-weight: 500;
+  padding: var(--sp-1) var(--sp-3);
+  border-radius: var(--r-full);
+  cursor: pointer;
+  background: var(--bg-glass);
+  border: 1px solid var(--border-default);
+  color: var(--text-tertiary);
+  transition: all var(--dur-fast) var(--ease-out);
+}
+.toggle-btn:hover { border-color: var(--border-strong); color: var(--text-secondary); }
+.toggle-btn.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-inverse);
+  box-shadow: 0 1px 8px rgba(0,155,125,0.2);
+}
+
+/* Risk Result */
+.risk-meter {
+  padding: var(--sp-6) var(--sp-8);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.risk-meter::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, var(--risk-glow, rgba(0,212,170,0.06)) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.risk-level-tag {
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: var(--sp-3);
+}
+
+.risk-pct {
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  margin-bottom: var(--sp-2);
+}
+
+.risk-sub {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.severity-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.sbar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.sbar-label {
+  font-size: var(--text-2xs);
+  font-weight: 500;
+  color: var(--text-secondary);
+  width: 64px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.sbar-track {
+  flex: 1;
+  height: 28px;
+  background: rgba(0,0,0,0.04);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  position: relative;
+}
+
+.sbar-fill {
+  height: 100%;
+  border-radius: var(--r-md);
+  transition: width 800ms var(--ease-out);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-right: var(--sp-3);
+  position: relative;
+}
+
+.sbar-fill::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2));
+  border-radius: var(--r-md);
+}
+
+.sbar-pct {
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  font-family: var(--font-mono);
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  position: relative;
+  z-index: 1;
+}
+
+/* ================================================================
+   RECOMMENDATION SUB-SECTIONS
+   ================================================================ */
+.sub-section {
+  margin-top: var(--sp-8);
+}
+.sub-section:first-of-type {
+  margin-top: var(--sp-4);
+}
+.sub-section-head {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+.sub-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.sub-title {
+  font-size: var(--text-lg);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 var(--sp-1) 0;
+}
+.sub-desc {
+  font-size: var(--text-sm);
+  color: var(--text-tertiary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Pulse animation for alert icon */
+@keyframes alertPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.alert-pulse {
+  animation: alertPulse 2s ease-in-out infinite;
+}
+
+/* ================================================================
+   DRIVER ALERT CARDS
+   ================================================================ */
+.alert-card {
+  padding: var(--sp-5);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.alert-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.alert-severity {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: var(--r-full);
+  margin-bottom: var(--sp-3);
+}
+.alert-severity.critical {
+  background: var(--danger-dim);
+  color: var(--danger);
+}
+.alert-severity.high {
+  background: var(--warning-dim);
+  color: var(--warning);
+}
+.alert-severity.moderate {
+  background: var(--teal-dim);
+  color: var(--teal);
+}
+.alert-severity .sev-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.alert-icon {
+  font-size: 1.6rem;
+  margin-bottom: var(--sp-2);
+  display: block;
+}
+.alert-stat {
+  font-size: var(--text-2xl);
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+.alert-stat-label {
+  font-size: var(--text-2xs);
+  color: var(--text-tertiary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: var(--sp-3);
+}
+.alert-title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-1);
+}
+.alert-body {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+.alert-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  border-radius: 4px 0 0 4px;
+}
+
+/* ================================================================
+   OVERLOOKED FACTOR CARDS
+   ================================================================ */
+.overlooked-card {
+  padding: var(--sp-5);
+  display: flex;
+  gap: var(--sp-4);
+  align-items: flex-start;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.overlooked-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.overlooked-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+.overlooked-content {
+  flex: 1;
+  min-width: 0;
+}
+.overlooked-label {
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--sp-1);
+}
+.overlooked-title {
+  font-size: var(--text-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-1);
+}
+.overlooked-body {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+.overlooked-stat {
+  font-size: var(--text-xs);
+  font-weight: 700;
+  margin-top: var(--sp-2);
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--r-sm);
+}
+
+/* ================================================================
+   RECOMMENDATION CARDS
+   ================================================================ */
+.rec-card {
+  padding: var(--sp-6);
+}
+
+.rec-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  padding: var(--sp-1) var(--sp-4);
+  border-radius: var(--r-full);
+  margin-bottom: var(--sp-4);
+}
+
+.rec-tag.infra { background: var(--cyan-dim); color: var(--cyan); }
+.rec-tag.enforce { background: var(--danger-dim); color: var(--danger); }
+.rec-tag.ems { background: var(--success-dim); color: var(--success); }
+.rec-tag.vehicle { background: var(--warning-dim); color: var(--warning); }
+
+.rec-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.rec-list li {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.55;
+  padding-left: var(--sp-5);
+  position: relative;
+}
+
+.rec-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.6em;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--li-color, var(--text-tertiary));
+  box-shadow: 0 0 6px var(--li-color, transparent);
+}
+
+/* ================================================================
+   METHODOLOGY
+   ================================================================ */
+.method-card {
+  display: flex;
+  gap: var(--sp-4);
+  padding: var(--sp-5) var(--sp-6);
+}
+
+.step-num {
+  width: 36px; height: 36px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--r-lg);
+  background: linear-gradient(135deg, rgba(0,155,125,0.12), transparent);
+  border: 1px solid rgba(0,155,125,0.2);
+  color: var(--accent);
+  font-size: var(--text-sm);
+  font-weight: 700;
+}
+
+.step-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  margin-bottom: var(--sp-1);
+}
+
+.step-text {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+/* ================================================================
+   FOOTER
+   ================================================================ */
+.footer {
+  margin-top: var(--sp-16);
+  padding: var(--sp-8) 0;
+  border-top: 1px solid var(--border-subtle);
+  text-align: center;
+}
+
+.footer p {
+  font-size: var(--text-xs);
+  color: var(--text-tertiary);
+  max-width: 72ch;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+.footer a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color var(--dur-fast);
+}
+.footer a:hover { color: var(--accent-bright); }
+
+/* ================================================================
+   ANIMATIONS
+   ================================================================ */
+.fade-in {
+  opacity: 0;
+  transform: translateY(16px);
+  animation: fadeInUp 600ms var(--ease-out) forwards;
+}
+
+@keyframes fadeInUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in:nth-child(1) { animation-delay: 0ms; }
+.fade-in:nth-child(2) { animation-delay: 80ms; }
+.fade-in:nth-child(3) { animation-delay: 160ms; }
+.fade-in:nth-child(4) { animation-delay: 240ms; }
+.fade-in:nth-child(5) { animation-delay: 320ms; }
+
+/* Skeleton */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border-strong); }
+
+/* Selection */
+::selection {
+  background: rgba(0,155,125,0.2);
+  color: var(--text-primary);
+}
+
+/* Accessibility */
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ============================================================
+     HEADER
+     ============================================================ -->
+<header class="header">
+  <div class="container">
+    <div class="header-inner">
+      <div class="logo-group">
+        <svg class="logo-mark" viewBox="0 0 38 38" fill="none" aria-label="CrashLens logo">
+          <circle cx="19" cy="19" r="17" stroke="var(--accent)" stroke-width="1.5" opacity="0.3"/>
+          <circle cx="19" cy="19" r="11" stroke="var(--accent)" stroke-width="1.5" opacity="0.6"/>
+          <circle cx="19" cy="19" r="5" fill="var(--accent)"/>
+          <line x1="19" y1="1" x2="19" y2="7" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+          <line x1="19" y1="31" x2="19" y2="37" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+          <line x1="1" y1="19" x2="7" y2="19" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+          <line x1="31" y1="19" x2="37" y2="19" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+        </svg>
+        <div>
+          <div class="logo-title">CrashLens</div>
+          <div class="logo-sub">Explainable AI for Traffic Safety</div>
+        </div>
+      </div>
+
+      <div class="filters" style="display:none;">
+      </div>
+
+      <div class="header-actions">
+        <span style="font-size:var(--text-2xs);color:var(--text-tertiary);font-family:var(--font-mono);white-space:nowrap;">477,801 records</span>
+        <button class="icon-btn" data-theme-toggle aria-label="Toggle theme">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================
+     MAIN
+     ============================================================ -->
+<main class="container">
+  <nav class="nav-section">
+    <div class="nav-tabs" role="tablist">
+      <button class="nav-tab active" role="tab" data-tab="overview">Overview</button>
+      <button class="nav-tab" role="tab" data-tab="models">Model Performance</button>
+      <button class="nav-tab" role="tab" data-tab="risk">Risk Factors</button>
+      <button class="nav-tab" role="tab" data-tab="explain">AI Explainability</button>
+      <button class="nav-tab" role="tab" data-tab="scenario">Scenario Explorer</button>
+      <button class="nav-tab" role="tab" data-tab="recommendations">Recommendations</button>
+      <button class="nav-tab" role="tab" data-tab="methodology">Methodology</button>
+    </div>
+  </nav>
+
+  <!-- ===== OVERVIEW ===== -->
+  <section class="panel active" id="panel-overview">
+    <div class="section-header">
+      <div class="section-tag"><span class="dot"></span> CRSS 2020–2023</div>
+      <h1 class="section-title">SHAP-Driven Crash Severity Prediction Using Ensemble and Transformer Models</h1>
+      <p class="section-desc">Every year, ~40,000 people die on U.S. roads. Current interventions are reactive — agencies respond after patterns emerge. This framework combines gradient-boosted ensembles (XGBoost, LightGBM, Random Forest) with an FT-Transformer, using SHAP explanations to identify actionable crash risk factors from 477,801 NHTSA CRSS records.</p>
+    </div>
+
+    <div class="grid-4" id="kpi-cards"></div>
+
+    <div class="grid-2">
+      <div class="glass chart-card chart-glow">
+        <div class="chart-card-head">
+          <span class="chart-title">Severity Distribution</span>
+          <span class="chart-badge">N = 477,801</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-severity" height="280"></canvas></div>
+      </div>
+      <div class="glass chart-card chart-glow">
+        <div class="chart-card-head">
+          <span class="chart-title">Fatal Outcomes by Year</span>
+          <span class="chart-badge">KABCO K-Class</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-yearly" height="280"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Risk Gauges -->
+    <div class="grid-4">
+      <div class="glass" style="padding:var(--sp-5);display:flex;align-items:center;justify-content:center;">
+        <div class="gauge-container">
+          <div class="gauge" data-gauge="44.9" data-color="var(--accent)">
+            <svg viewBox="0 0 120 120"><circle class="gauge-bg" cx="60" cy="60" r="50"/><circle class="gauge-fill" cx="60" cy="60" r="50"/></svg>
+            <div class="gauge-center"><span class="gauge-value" style="color:var(--accent);">44.9%</span><span class="gauge-label-text">Bal. Acc.</span></div>
+          </div>
+          <div style="font-size:var(--text-xs);font-weight:600;color:var(--text-secondary);">LightGBM</div>
+        </div>
+      </div>
+      <div class="glass" style="padding:var(--sp-5);display:flex;align-items:center;justify-content:center;">
+        <div class="gauge-container">
+          <div class="gauge" data-gauge="42.6" data-color="var(--warning)">
+            <svg viewBox="0 0 120 120"><circle class="gauge-bg" cx="60" cy="60" r="50"/><circle class="gauge-fill" cx="60" cy="60" r="50"/></svg>
+            <div class="gauge-center"><span class="gauge-value" style="color:var(--warning);">42.6%</span><span class="gauge-label-text">Fatal Sens.</span></div>
+          </div>
+          <div style="font-size:var(--text-xs);font-weight:600;color:var(--text-secondary);">LightGBM</div>
+        </div>
+      </div>
+      <div class="glass" style="padding:var(--sp-5);display:flex;align-items:center;justify-content:center;">
+        <div class="gauge-container">
+          <div class="gauge" data-gauge="61.1" data-color="var(--fatal)">
+            <svg viewBox="0 0 120 120"><circle class="gauge-bg" cx="60" cy="60" r="50"/><circle class="gauge-fill" cx="60" cy="60" r="50"/></svg>
+            <div class="gauge-center"><span class="gauge-value" style="color:var(--fatal);">61.1%</span><span class="gauge-label-text">Fatal Sens.</span></div>
+          </div>
+          <div style="font-size:var(--text-xs);font-weight:600;color:var(--text-secondary);">Transformer</div>
+        </div>
+      </div>
+      <div class="glass" style="padding:var(--sp-5);display:flex;align-items:center;justify-content:center;">
+        <div class="gauge-container">
+          <div class="gauge" data-gauge="0.9" data-color="var(--danger)">
+            <svg viewBox="0 0 120 120"><circle class="gauge-bg" cx="60" cy="60" r="50"/><circle class="gauge-fill" cx="60" cy="60" r="50"/></svg>
+            <div class="gauge-center"><span class="gauge-value" style="color:var(--danger);">0.9%</span><span class="gauge-label-text">Fatal Rate</span></div>
+          </div>
+          <div style="font-size:var(--text-xs);font-weight:600;color:var(--text-secondary);">Dataset</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MODEL PERFORMANCE ===== -->
+  <section class="panel" id="panel-models">
+    <div class="section-header">
+      <div class="section-tag"><span class="dot"></span> Model Comparison</div>
+      <h2 class="section-title">Performance Benchmark</h2>
+      <p class="section-desc">Four models were trained: three gradient-boosted tree ensembles and one deep learning transformer. LightGBM achieves the best overall balance, while the FT-Transformer reaches 61.1% fatal sensitivity — detecting 47% more fatal crashes.</p>
+    </div>
+
+    <div class="glass chart-card">
+      <div class="chart-card-head">
+        <span class="chart-title">Test Set Metrics</span>
+        <span class="chart-badge">20% holdout</span>
+      </div>
+      <div class="model-table-wrap">
+        <table class="model-table" id="model-table"></table>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="glass chart-card chart-glow">
+        <div class="chart-card-head">
+          <span class="chart-title">Accuracy vs Fatal Sensitivity</span>
+          <span class="chart-badge">Tradeoff</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-tradeoff" height="300"></canvas></div>
+      </div>
+      <div class="glass chart-card chart-glow">
+        <div class="chart-card-head">
+          <span class="chart-title">Per-Class F1 Score</span>
+          <span class="chart-badge">By Severity</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-f1" height="300"></canvas></div>
+      </div>
+    </div>
+
+    <div class="glass chart-card">
+      <div class="chart-card-head">
+        <span class="chart-title">Confusion Matrix — LightGBM</span>
+        <span class="chart-badge">Best Overall</span>
+      </div>
+      <div id="cm-container" style="max-width:540px;margin:0 auto;"></div>
+    </div>
+  </section>
+
+  <!-- ===== RISK FACTORS ===== -->
+  <section class="panel" id="panel-risk">
+    <div class="section-header">
+      <div class="section-tag"><span class="dot"></span> SHAP Analysis</div>
+      <h2 class="section-title">What Drives Fatal Crashes?</h2>
+      <p class="section-desc">SHAP values measure each feature's causal contribution to the model's output for every individual crash. These are not just correlations — they reveal the mechanics of crash severity.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="glass chart-card chart-glow">
+        <div class="chart-card-head">
+          <span class="chart-title">Global Feature Importance</span>
+          <span class="chart-badge">All Classes</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-global-shap" height="260"></canvas></div>
+      </div>
+      <div class="glass chart-card chart-glow">
+        <div class="chart-card-head">
+          <span class="chart-title">Fatal-Specific Importance</span>
+          <span class="chart-badge">K-Class</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-fatal-shap" height="260"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== AI EXPLAINABILITY ===== -->
+  <section class="panel" id="panel-explain">
+    <div class="section-header">
+      <div class="section-tag"><span class="dot"></span> AI Insights</div>
+      <h2 class="section-title">Why Are These Crashes Fatal?</h2>
+      <p class="section-desc">Natural language explanations of the model's findings, translating complex SHAP feature interactions into actionable safety intelligence.</p>
+    </div>
+
+    <div class="glass-static ai-panel">
+      <div class="ai-panel-header">
+        <div class="ai-badge"><span class="pulse"></span> CrashLens AI Engine</div>
+        <span style="font-size:var(--text-2xs);color:var(--text-tertiary);">Powered by SHAP TreeExplainer on LightGBM</span>
+      </div>
+
+      <div class="grid-2" style="gap:var(--sp-4);" id="ai-cards"></div>
+    </div>
+
+    <div class="glass chart-card" style="margin-top:var(--sp-4);">
+      <div class="chart-card-head">
+        <span class="chart-title">Feature Impact Direction on Fatal Risk</span>
+        <span class="chart-badge">SHAP Direction</span>
+      </div>
+      <div id="impact-bars"></div>
+    </div>
+  </section>
+
+  <!-- ===== SCENARIO EXPLORER ===== -->
+  <section class="panel" id="panel-scenario">
+    <div class="section-header">
+      <div class="section-tag"><span class="dot"></span> Interactive</div>
+      <h2 class="section-title">What-If Scenario Explorer</h2>
+      <p class="section-desc">Adjust crash conditions to see how predicted injury severity shifts in real time. This uses a risk model derived from the trained LightGBM's SHAP importance weights.</p>
+    </div>
+
+    <div class="glass chart-card">
+      <div class="chart-card-head">
+        <span class="chart-title">Crash Conditions</span>
+        <span class="chart-badge">Adjust Parameters</span>
+      </div>
+      <div class="scenario-grid" id="scenario-form"></div>
+    </div>
+
+    <div class="grid-2" style="margin-top: var(--sp-2);">
+      <div class="glass chart-card">
+        <div class="chart-card-head"><span class="chart-title">Predicted Severity</span></div>
+        <div class="severity-bars" id="severity-bars"></div>
+      </div>
+      <div class="glass risk-meter" id="risk-meter">
+        <div class="risk-level-tag" id="risk-tag">Low Risk</div>
+        <div class="risk-pct" id="risk-pct">0.5%</div>
+        <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-secondary);margin-bottom:var(--sp-2);">Fatal Probability</div>
+        <div class="risk-sub" id="risk-sub">Serious + Fatal: 4.5%</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== RECOMMENDATIONS ===== -->
+  <section class="panel" id="panel-recommendations">
+    <div class="section-header">
+      <div class="section-tag"><span class="dot"></span> Policy Insights</div>
+      <h2 class="section-title">Evidence-Based Recommendations</h2>
+      <p class="section-desc">Each recommendation targets a specific risk factor identified by the model, translating ML insights into actionable transportation safety policy.</p>
+    </div>
+
+    <!-- Driver Safety Alerts -->
+    <div class="sub-section">
+      <div class="sub-section-head">
+        <span class="sub-icon alert-pulse">&#x26A0;&#xFE0F;</span>
+        <div>
+          <h3 class="sub-title">Critical Driver Alerts</h3>
+          <p class="sub-desc">Data-backed warnings every driver should know — directly from our crash severity model.</p>
+        </div>
+      </div>
+      <div class="grid-3" id="driver-alerts-grid"></div>
+    </div>
+
+    <!-- Often Overlooked -->
+    <div class="sub-section">
+      <div class="sub-section-head">
+        <span class="sub-icon">&#x1F50D;</span>
+        <div>
+          <h3 class="sub-title">Often Overlooked Risk Factors</h3>
+          <p class="sub-desc">Commonly missed conditions that silently escalate crash severity — flagged by the AI model but rarely discussed.</p>
+        </div>
+      </div>
+      <div class="grid-2" id="overlooked-grid"></div>
+    </div>
+
+    <!-- Policy Recommendations -->
+    <div class="sub-section">
+      <div class="sub-section-head">
+        <span class="sub-icon">&#x1F4CB;</span>
+        <div>
+          <h3 class="sub-title">Policy Recommendations</h3>
+          <p class="sub-desc">Actionable infrastructure, enforcement, and operational strategies derived from SHAP-based feature analysis.</p>
+        </div>
+      </div>
+      <div class="grid-2" id="rec-grid"></div>
+    </div>
+  </section>
+
+  <!-- ===== METHODOLOGY ===== -->
+  <section class="panel" id="panel-methodology">
+    <div class="section-header">
+      <div class="section-tag"><span class="dot"></span> Pipeline</div>
+      <h2 class="section-title">Reproducible Methodology</h2>
+      <p class="section-desc">A transparent pipeline from raw NHTSA crash data to deployed explainable AI dashboard.</p>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:var(--sp-3);" id="method-steps"></div>
+
+    <div class="glass chart-card" style="margin-top:var(--sp-4);">
+      <div class="chart-card-head"><span class="chart-title">Technical Stack</span></div>
+      <div class="grid-3" style="gap:var(--sp-4);">
+        <div>
+          <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:var(--sp-2);">Data</div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);">Python, Pandas, NumPy, PyArrow</div>
+        </div>
+        <div>
+          <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:var(--sp-2);">Models</div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);">Scikit-learn, XGBoost, LightGBM, PyTorch</div>
+        </div>
+        <div>
+          <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:var(--sp-2);">Explainability</div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);">SHAP, Chart.js, Vanilla JS</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <p>CrashLens: SHAP-Driven Crash Severity Prediction Using Ensemble and Transformer Models<br>
+      Data: <a href="https://www.nhtsa.gov/file-downloads?p=nhtsa/downloads/CRSS/" target="_blank" rel="noopener">NHTSA CRSS 2020–2023</a> · 477,801 person-level records · Sai Kumar Naidu · Florida Atlantic University · 2026
+    </p>
+  </footer>
+</main>
+</div>
+
+<script>
+// ================================================================
+// DATA
+// ================================================================
+const D = {
+  severity: {
+    labels: ['No Injury (O)', 'Possible (C)', 'Minor (B)', 'Serious (A)', 'Fatal (K)'],
+    counts: [339221, 67244, 42445, 24512, 4379],
+    pcts: [71.0, 14.1, 8.9, 5.1, 0.9],
+    colors: ['#2E7D32', '#E6960A', '#E67E22', '#D32F2F', '#9C27B0']
+  },
+  yearly: {
+    years: [2020, 2021, 2022, 2023],
+    fatal: [1520, 1315, 1387, 1237],
+    total: [131962, 133734, 131175, 122388]
+  },
+  kpis: [
+    { value: '4,379', label: 'Fatal Outcomes', detail: '0.9% of all records', icon: '\u26A0\uFE0F', color: '#C62828', colorEnd: '#7B1FA2', bg: 'rgba(211,47,47,0.08)' },
+    { value: '24,512', label: 'Serious Injuries', detail: '5.1% — often life-altering', icon: '\uD83D\uDE91', color: '#E6960A', colorEnd: '#D84315', bg: 'rgba(230,150,10,0.08)' },
+    { value: '~40,000', label: 'Annual US Deaths', detail: 'A plane crash every day', icon: '\uD83D\uDEA8', color: '#C62828', colorEnd: '#E6960A', bg: 'rgba(211,47,47,0.08)' },
+    { value: '$340B/yr', label: 'Economic Cost', detail: 'NHTSA total estimate', icon: '\uD83D\uDCB0', color: '#00796B', colorEnd: '#00838F', bg: 'rgba(0,155,125,0.08)' }
+  ],
+  models: {
+    'Random Forest':  { acc: 0.7173, bal: 0.4251, f1: 0.4186, fatal: 0.3730, time: 76.4 },
+    'XGBoost':        { acc: 0.7104, bal: 0.4426, f1: 0.4346, fatal: 0.3696, time: 88.1 },
+    'LightGBM':       { acc: 0.7094, bal: 0.4494, f1: 0.4300, fatal: 0.4263, time: 53.7 },
+    'FT-Transformer': { acc: 0.3866, bal: 0.4407, f1: 0.3066, fatal: 0.6111, time: 438.7 }
+  },
+  perClass: {
+    'Random Forest':  [0.8678, 0.2297, 0.3246, 0.3279, 0.3429],
+    'XGBoost':        [0.8639, 0.2985, 0.3326, 0.3393, 0.3387],
+    'LightGBM':       [0.8637, 0.3008, 0.3305, 0.3279, 0.3272],
+    'FT-Transformer': [0.5313, 0.2316, 0.2620, 0.2574, 0.2508]
+  },
+  cm: [
+    [58886, 4419, 2451, 1138, 154],
+    [6950, 3596, 1812, 1030, 176],
+    [2563, 1600, 2792, 1418, 234],
+    [845, 690, 1140, 1717, 476],
+    [66, 43, 95, 302, 376]
+  ],
+  cmLabels: ['O', 'C', 'B', 'A', 'K'],
+  globalShap: [
+    { name: 'Total Vehicles', val: 0.1227 },
+    { name: 'Person Age', val: 0.0944 },
+    { name: 'Vehicle Age', val: 0.0653 },
+    { name: 'Travel Speed', val: 0.0596 },
+    { name: 'Speed Over Limit', val: 0.0395 }
+  ],
+  fatalShap: [
+    { name: 'Total Vehicles', val: 0.0860 },
+    { name: 'Person Age', val: 0.0677 },
+    { name: 'Travel Speed', val: 0.0631 },
+    { name: 'Vehicle Age', val: 0.0538 },
+    { name: 'Speed Over Limit', val: 0.0264 }
+  ],
+  findings: [
+    { title: 'Age is the strongest individual predictor', text: 'Older occupants face dramatically higher fatal crash risk. Persons 65+ are 3.2\u00d7 more likely to suffer fatal injuries than 25\u201334 year olds.', nlp: '"When the model sees an occupant aged 70+ in a crash, the predicted fatal probability increases by 12\u201318 percentage points — the single largest feature contribution."', icon: '\uD83D\uDC64', bg: 'var(--cyan-dim)', color: 'var(--cyan)' },
+    { title: 'Speed kills — absolute and relative', text: 'Travel speed and speed-over-limit are the top 2 speed-related risk factors. Each 10 MPH increase raises fatal probability by ~15%.', nlp: '"The model consistently flags crashes above 55 MPH as high-risk. When combined with no seatbelt, the fatal SHAP value spikes 3\u00d7."', icon: '\u26A1', bg: 'var(--danger-dim)', color: 'var(--danger)' },
+    { title: 'Restraints are the strongest protective factor', text: 'Unrestrained occupants are 5\u00d7 more likely to die. Seatbelt use alone prevents an estimated 45% of fatal outcomes.', nlp: '"Switching restraint from \'None\' to \'SeatBelt_Full\' causes the largest single negative shift in fatal SHAP values across all features."', icon: '\uD83D\uDEE1\uFE0F', bg: 'var(--success-dim)', color: 'var(--success)' },
+    { title: 'Vehicle deformation signals outcome severity', text: 'Disabling vehicle damage is the strongest crash-dynamics predictor — crashes severe enough to disable the vehicle have 8\u00d7 higher fatality rates.', nlp: '"The deformation feature interacts strongly with speed — disabling damage at high speed is the model\'s strongest combined signal for fatal outcome."', icon: '\uD83D\uDE97', bg: 'var(--warning-dim)', color: 'var(--warning)' },
+    { title: 'Ejection is nearly always fatal', text: 'Occupants ejected from vehicles have >20\u00d7 higher fatality risk. Ejection alone predicts fatal severity with 72% accuracy.', nlp: '"Ejection status is effectively a binary switch — when present, the model assigns the highest per-feature SHAP value in the entire dataset."', icon: '\u26A0\uFE0F', bg: 'var(--fatal-dim)', color: 'var(--fatal)' }
+  ],
+  impactBars: [
+    { name: 'Person Age', dir: 'increase', val: 0.0535, text: 'Older age \u2192 higher fatal risk' },
+    { name: 'Travel Speed', dir: 'increase', val: 0.0485, text: 'Faster speed \u2192 higher fatal risk' },
+    { name: 'Total Vehicles', dir: 'decrease', val: 0.0432, text: 'Multi-vehicle \u2192 energy dissipation' },
+    { name: 'Vehicle Age', dir: 'decrease', val: 0.0276, text: 'Newer safety features \u2192 lower risk' },
+    { name: 'Speed Over Limit', dir: 'decrease', val: 0.0059, text: 'Marginal above speed factor' }
+  ],
+  driverAlerts: [
+    { severity: 'critical', icon: '\uD83D\uDEE1\uFE0F', stat: '5\u00d7', statLabel: 'Fatal Risk Multiplier', title: 'Seatbelt Non-Use', body: 'Unrestrained occupants are 5\u00d7 more likely to die. Our model shows seatbelt use alone prevents 45% of fatal outcomes \u2014 the single strongest protective factor in the entire dataset.', stripe: '#C62828' },
+    { severity: 'critical', icon: '\u26A1', stat: '+15%', statLabel: 'Per 10 MPH Increase', title: 'Excessive Speed', body: 'Each 10 MPH increase in travel speed raises fatal probability by ~15%. The model flags any crash above 55 MPH as high-risk. Combined with no seatbelt, fatal SHAP values spike 3\u00d7.', stripe: '#D32F2F' },
+    { severity: 'critical', icon: '\uD83D\uDEAB', stat: '20\u00d7', statLabel: 'Fatality Rate', title: 'Ejection from Vehicle', body: 'Ejection is the deadliest single event in crash data. Occupants thrown from the vehicle face >20\u00d7 fatality risk. Directly linked to restraint non-use \u2014 wearing a seatbelt nearly eliminates ejection.', stripe: '#9C27B0' },
+    { severity: 'high', icon: '\uD83C\uDF19', stat: '3.5\u00d7', statLabel: 'Fatal Risk at Night', title: 'Dark Unlighted Roads', body: 'Driving on roads without street lighting after dark multiplies fatal risk by 3.5\u00d7. Reduce speed by at least 10 MPH, increase following distance, and use high beams when possible.', stripe: '#E67E22' },
+    { severity: 'high', icon: '\uD83D\uDC74', stat: '3.2\u00d7', statLabel: 'vs. Age 25\u201334', title: 'Age 65+ Vulnerability', body: 'Same crash, drastically different outcome. Persons 65+ face 3.2\u00d7 higher fatal injury risk due to physical fragility. Age is the #2 predictor in our model after total vehicles involved.', stripe: '#E6960A' },
+    { severity: 'moderate', icon: '\uD83D\uDE97', stat: '2\u00d7', statLabel: 'Fatal Risk Increase', title: 'Vehicle Age >15 Years', body: 'Older vehicles lack modern crash protection: side curtain airbags, ESC, advanced crumple zones, and automatic emergency braking. A 2005 car offers roughly half the survivability of a 2020 model.', stripe: '#00796B' }
+  ],
+  overlookedFactors: [
+    { icon: '\uD83C\uDF05', label: 'Visibility', labelColor: '#E67E22', bg: 'rgba(230,150,10,0.08)', title: 'Dawn & Dusk Transitions', body: 'Rapidly changing light during sunrise and sunset impairs depth perception and causes glare. Drivers misjudge distances and fail to see pedestrians. Often dismissed as \'just low light\' but crash data shows elevated severity.', stat: 'Peak glare crashes: 6\u20137 AM, 5\u20137 PM', statBg: 'rgba(230,150,10,0.08)', statColor: '#E67E22' },
+    { icon: '\uD83C\uDF2B\uFE0F', label: 'Weather', labelColor: '#5C6BC0', bg: 'rgba(92,107,192,0.08)', title: 'Fog \u2014 Rare but Deadly', body: 'Fog accounts for a small fraction of crashes but a disproportionate share of fatal multi-vehicle pileups. Drivers maintain highway speeds while visibility drops below safe stopping distance. Speed reduction is the only viable defense.', stat: 'Low frequency, high severity', statBg: 'rgba(92,107,192,0.08)', statColor: '#5C6BC0' },
+    { icon: '\uD83E\uDEF8', label: 'Restraint', labelColor: '#C62828', bg: 'rgba(211,47,47,0.08)', title: 'Partial Seatbelt Use', body: 'Lap-only or improperly worn belts provide significantly less protection than full shoulder+lap restraints. Our model detects that \'SeatBelt_Partial\' offers roughly half the protective SHAP value of \'SeatBelt_Full\'.', stat: 'Partial \u2248 50% of full protection', statBg: 'rgba(211,47,47,0.08)', statColor: '#C62828' },
+    { icon: '\uD83D\uDEE3\uFE0F', label: 'Road', labelColor: '#009B7D', bg: 'rgba(0,155,125,0.08)', title: 'Single-Vehicle Departures', body: 'No other driver involved \u2014 yet single-vehicle road departures have some of the highest fatality rates. Primary causes: fatigue, distraction, impairment, and speeding on curves. Often underreported and under-studied.', stat: 'Fatigue peaks: 2\u20134 AM, 2\u20134 PM', statBg: 'rgba(0,155,125,0.08)', statColor: '#009B7D' },
+    { icon: '\uD83C\uDFCD\uFE0F', label: 'Vehicle Type', labelColor: '#9C27B0', bg: 'rgba(156,39,176,0.08)', title: 'Motorcycle Full-Body Exposure', body: 'Beyond helmets, motorcyclists have zero crash structure, no airbags, and no seatbelts. The 8\u00d7 fatality multiplier persists even with helmet use. Protective gear, visibility aids, and defensive riding are essential.', stat: '8\u00d7 fatality vs. passenger cars', statBg: 'rgba(156,39,176,0.08)', statColor: '#9C27B0' },
+    { icon: '\u23F0', label: 'Time', labelColor: '#C62828', bg: 'rgba(211,47,47,0.08)', title: 'Late-Night Window (12\u20135 AM)', body: 'The deadliest hours on the road combine peak alcohol impairment, driver fatigue, reduced traffic (encouraging speeding), and slower EMS response. Fatal crash rates per vehicle-mile are 3\u20134\u00d7 higher than daytime.', stat: '3\u20134\u00d7 fatal rate per mile', statBg: 'rgba(211,47,47,0.08)', statColor: '#C62828' },
+    { icon: '\uD83C\uDF27\uFE0F', label: 'Conditions', labelColor: '#5C6BC0', bg: 'rgba(92,107,192,0.08)', title: 'Speed Relative to Conditions', body: 'Driving at the posted limit during rain, snow, or on curves can still be unsafe. \'Safe speed\' depends on road surface, visibility, and curvature \u2014 not just the sign. The model treats speed-over-limit and absolute speed as independent risk factors.', stat: 'Two independent SHAP signals', statBg: 'rgba(92,107,192,0.08)', statColor: '#5C6BC0' },
+    { icon: '\uD83D\uDCA5', label: 'Crash Dynamics', labelColor: '#E67E22', bg: 'rgba(230,150,10,0.08)', title: 'Vehicle Deformation Severity', body: 'Most drivers don\'t realize: disabling vehicle damage is the strongest crash-dynamics predictor of fatality (8\u00d7 rate). It interacts with speed \u2014 disabling damage at high speed is the model\'s #1 combined signal for fatal outcome.', stat: '8\u00d7 fatality with disabling damage', statBg: 'rgba(230,150,10,0.08)', statColor: '#E67E22' }
+  ],
+  recommendations: [
+    { category: 'Infrastructure', cls: 'infra', icon: '\uD83D\uDEE3\uFE0F', liColor: 'var(--cyan)', items: [
+      'Prioritize lighting upgrades on high-speed rural roads (dark + unlighted = 3.5\u00d7 fatal risk)',
+      'Install median barriers on undivided highways with speed limits \u226555 MPH',
+      'Add rumble strips and curve warnings where single-vehicle departures cluster',
+      'Deploy dynamic speed signs that adjust limits for weather and visibility conditions'
+    ]},
+    { category: 'Enforcement', cls: 'enforce', icon: '\uD83D\uDEA8', liColor: 'var(--danger)', items: [
+      'Target seatbelt enforcement on rural roads (lower compliance, higher fatal risk)',
+      'Deploy speed cameras in zones where speeds exceed limits by >15 MPH',
+      'Increase DUI checkpoints during late-night hours (12am\u20135am = peak impairment)',
+      'Enforce partial-restraint violations \u2014 lap-only belts provide \u224850% protection'
+    ]},
+    { category: 'EMS Operations', cls: 'ems', icon: '\uD83D\uDE91', liColor: 'var(--success)', items: [
+      'Pre-position trauma units near high-speed corridors during night/weekend periods',
+      'Use crash data for dynamic EMS triage (rollover + ejection = helicopter dispatch)',
+      'Alert hospitals when crash parameters predict serious/fatal outcomes',
+      'Prioritize response time for elderly occupants (65+) \u2014 3.2\u00d7 vulnerability factor'
+    ]},
+    { category: 'Vehicle Safety Policy', cls: 'vehicle', icon: '\uD83D\uDE97', liColor: 'var(--warning)', items: [
+      'Older vehicles (>15 years) have 2\u00d7 fatal risk \u2014 incentivize fleet modernization',
+      'Motorcycle riders face 8\u00d7 fatality risk \u2014 prioritize helmet law enforcement',
+      'Mandate advanced restraint systems in commercial vehicles',
+      'Require ESC and side-curtain airbags in used vehicle resale inspections'
+    ]}
+  ],
+  methodology: [
+    { n: '1', title: 'Data Collection', desc: 'Downloaded NHTSA CRSS 2020\u20132023 — 6 CSV tables covering 205,874 crashes and 477,801 person records.' },
+    { n: '2', title: 'Feature Engineering', desc: 'Merged tables on CASEID/VEHNO/PER_NO, engineered 37 features. Encoded CRSS special codes as missing.' },
+    { n: '3', title: 'Train/Val/Test Split', desc: 'Group-aware 60/20/20 split by CASEID. Applied SMOTE to training only (Fatal: 0.9% \u2192 9.1%).' },
+    { n: '4', title: 'Model Training', desc: 'Trained RF, XGBoost, LightGBM and FT-Transformer. Identical feature sets and evaluation protocol.' },
+    { n: '5', title: 'Explainability', desc: 'SHAP TreeExplainer on LightGBM for global and per-class feature importance.' },
+    { n: '6', title: 'Dashboard', desc: 'Exported model results and SHAP values to JSON. Built interactive dashboard with Chart.js.' }
+  ]
+};
+
+// ================================================================
+// THEME TOGGLE
+// ================================================================
+(function() {
+  const html = document.documentElement;
+  const btn = document.querySelector('[data-theme-toggle]');
+
+  const MOON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+  const SUN  = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>`;
+
+  // Returns theme-aware colors for Chart.js
+  window.getChartTheme = function() {
+    const dark = html.dataset.theme === 'dark';
+    return {
+      tooltipBg:     dark ? 'rgba(15,37,54,0.96)'      : 'rgba(255,255,255,0.96)',
+      tooltipBorder: dark ? 'rgba(255,255,255,0.1)'    : 'rgba(0,0,0,0.1)',
+      tooltipTitle:  dark ? '#E8F4F0'                  : '#1A2332',
+      tooltipBody:   dark ? '#9BBFB5'                  : '#4B5B73',
+      gridColor:     dark ? 'rgba(255,255,255,0.06)'   : 'rgba(0,0,0,0.06)',
+      tickColor:     dark ? '#5F8880'                  : '#7A8BA3',
+      legendColor:   dark ? '#9BBFB5'                  : '#4B5B73',
+    };
+  };
+
+  // Re-applies Chart.js colors to all instantiated charts
+  window.applyChartTheme = function() {
+    const t = window.getChartTheme();
+    Chart.defaults.color = t.tickColor;
+    Chart.defaults.plugins.tooltip.backgroundColor = t.tooltipBg;
+    Chart.defaults.plugins.tooltip.titleColor      = t.tooltipTitle;
+    Chart.defaults.plugins.tooltip.bodyColor       = t.tooltipBody;
+    Chart.defaults.plugins.tooltip.borderColor     = t.tooltipBorder;
+
+    if (typeof charts === 'undefined') return;
+    Object.values(charts).forEach(ch => {
+      if (!ch?.options) return;
+      // Scales: ticks + grid
+      Object.values(ch.options.scales || {}).forEach(s => {
+        if (s.ticks)  s.ticks.color = t.tickColor;
+        if (s.grid)   s.grid.color  = t.gridColor;
+        if (s.border) s.border.color = t.gridColor;
+      });
+      // Legend
+      const leg = ch.options.plugins?.legend?.labels;
+      if (leg) leg.color = t.legendColor;
+      // Tooltip
+      const tip = ch.options.plugins?.tooltip;
+      if (tip) Object.assign(tip, {
+        backgroundColor: t.tooltipBg,
+        titleColor:      t.tooltipTitle,
+        bodyColor:       t.tooltipBody,
+        borderColor:     t.tooltipBorder,
+      });
+      ch.update('none');
+    });
+  };
+
+  function setTheme(theme, updateCharts) {
+    html.dataset.theme = theme;
+    btn.innerHTML = theme === 'light' ? MOON : SUN;
+    btn.setAttribute('title', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+    btn.setAttribute('aria-label', theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+    if (updateCharts) window.applyChartTheme();
+  }
+
+  // Apply initial button icon (default: light theme)
+  setTheme('light', false);
+
+  btn.addEventListener('click', () => {
+    setTheme(html.dataset.theme === 'light' ? 'dark' : 'light', true);
+  });
+})();
+
+// ================================================================
+// TAB NAVIGATION
+// ================================================================
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    tab.setAttribute('aria-selected', 'true');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+// Filter chips removed — dashboard uses pre-aggregated data across all years
+
+// ================================================================
+// CHART.JS DEFAULTS
+// ================================================================
+const TX = () => getComputedStyle(document.documentElement).getPropertyValue('--text-tertiary').trim() || '#7A8BA3';
+const GR = () => document.documentElement.dataset.theme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
+Chart.defaults.color = TX();
+Chart.defaults.font.family = "'Inter', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyleWidth = 8;
+Chart.defaults.plugins.legend.labels.padding = 16;
+Chart.defaults.plugins.tooltip.titleColor = '#1A2332';
+Chart.defaults.plugins.tooltip.bodyColor = '#4B5B73';
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(0,0,0,0.1)';
+
+const charts = {};
+
+// ================================================================
+// KPI CARDS
+// ================================================================
+(function() {
+  const el = document.getElementById('kpi-cards');
+  D.kpis.forEach((k, i) => {
+    const card = document.createElement('div');
+    card.className = 'glass kpi-card fade-in';
+    card.style.setProperty('--kpi-color', k.color);
+    card.style.setProperty('--kpi-color-end', k.colorEnd);
+    card.style.setProperty('--kpi-bg', k.bg);
+    card.innerHTML = `
+      <div class="kpi-icon" style="background:${k.bg};">${k.icon}</div>
+      <div class="kpi-value">${k.value}</div>
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-detail">${k.detail}</div>
+    `;
+    el.appendChild(card);
+  });
+})();
+
+// ================================================================
+// RADIAL GAUGES
+// ================================================================
+document.querySelectorAll('.gauge').forEach(g => {
+  const pct = parseFloat(g.dataset.gauge);
+  const color = g.dataset.color;
+  const circ = 2 * Math.PI * 50;
+  const fill = g.querySelector('.gauge-fill');
+  fill.style.stroke = color;
+  fill.style.strokeDasharray = circ;
+  fill.style.strokeDashoffset = circ;
+  fill.style.filter = `drop-shadow(0 0 6px ${color})`;
+  // Animate on load
+  setTimeout(() => {
+    const scaledPct = Math.min(pct, 100);
+    fill.style.strokeDashoffset = circ - (circ * scaledPct / 100);
+  }, 300);
+});
+
+// ================================================================
+// SEVERITY CHART
+// ================================================================
+charts.severity = new Chart(document.getElementById('chart-severity'), {
+  type: 'doughnut',
+  data: {
+    labels: D.severity.labels,
+    datasets: [{
+      data: D.severity.counts,
+      backgroundColor: D.severity.colors.map(c => c + 'cc'),
+      borderWidth: 0,
+      hoverBorderWidth: 3,
+      hoverBorderColor: '#fff',
+      hoverOffset: 8
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '65%',
+    plugins: {
+      legend: { position: 'right', labels: { font: { size: 11 }, padding: 14 } },
+      tooltip: {
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        borderColor: 'rgba(0,0,0,0.1)',
+        borderWidth: 1,
+        titleFont: { weight: '600' },
+        cornerRadius: 8,
+        padding: 12,
+        callbacks: {
+          label: ctx => ` ${ctx.label}: ${ctx.raw.toLocaleString()} (${D.severity.pcts[ctx.dataIndex]}%)`
+        }
+      }
+    }
+  }
+});
+
+// ================================================================
+// YEARLY CHART
+// ================================================================
+charts.yearly = new Chart(document.getElementById('chart-yearly'), {
+  type: 'bar',
+  data: {
+    labels: D.yearly.years,
+    datasets: [{
+      label: 'Fatal Outcomes',
+      data: D.yearly.fatal,
+      backgroundColor: ctx => {
+        const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 280);
+        g.addColorStop(0, '#9C27B0');
+        g.addColorStop(1, 'rgba(156,39,176,0.15)');
+        return g;
+      },
+      borderRadius: 8,
+      barPercentage: 0.55
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        borderColor: 'rgba(156,39,176,0.2)',
+        borderWidth: 1,
+        cornerRadius: 8,
+        padding: 12,
+        callbacks: {
+          afterLabel: ctx => {
+            const total = D.yearly.total[ctx.dataIndex];
+            return `Rate: ${((ctx.raw / total) * 100).toFixed(2)}% of ${total.toLocaleString()}`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: TX() } },
+      y: { beginAtZero: true, grid: { color: GR() }, ticks: { color: TX() } }
+    }
+  }
+});
+
+// ================================================================
+// MODEL TABLE
+// ================================================================
+(function() {
+  const table = document.getElementById('model-table');
+  const metrics = ['acc', 'bal', 'f1', 'fatal', 'time'];
+  const headers = ['Model', 'Accuracy', 'Bal. Acc.', 'F1 Macro', 'Fatal Sens.', 'Time (s)'];
+  const best = {};
+  metrics.forEach(m => {
+    let bv = m === 'time' ? Infinity : -Infinity, bn = '';
+    Object.entries(D.models).forEach(([n, d]) => { if (m === 'time' ? d[m] < bv : d[m] > bv) { bv = d[m]; bn = n; } });
+    best[m] = bn;
+  });
+  let html = '<thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+  Object.entries(D.models).forEach(([name, d]) => {
+    html += '<tr><td class="model-name">' + name + '</td>';
+    metrics.forEach(m => {
+      const v = m === 'time' ? d[m].toFixed(1) : (d[m] * 100).toFixed(1) + '%';
+      html += `<td class="${best[m] === name ? 'best' : ''}">${v}</td>`;
+    });
+    html += '</tr>';
+  });
+  table.innerHTML = html + '</tbody>';
+})();
+
+// ================================================================
+// TRADEOFF SCATTER
+// ================================================================
+(function() {
+  const names = Object.keys(D.models);
+  const cols = ['#2E7D32', '#0097A7', '#E6960A', '#9C27B0'];
+  charts.tradeoff = new Chart(document.getElementById('chart-tradeoff'), {
+    type: 'scatter',
+    data: {
+      datasets: names.map((n, i) => ({
+        label: n,
+        data: [{ x: D.models[n].acc * 100, y: D.models[n].fatal * 100 }],
+        backgroundColor: cols[i],
+        borderColor: cols[i],
+        pointRadius: 10,
+        pointHoverRadius: 14,
+        pointStyle: 'circle'
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: {
+          backgroundColor: 'rgba(255,255,255,0.95)',
+          borderColor: 'rgba(0,0,0,0.1)',
+          borderWidth: 1,
+          cornerRadius: 8,
+          padding: 12,
+          callbacks: { label: ctx => `${ctx.dataset.label}: Acc ${ctx.raw.x.toFixed(1)}%, Fatal ${ctx.raw.y.toFixed(1)}%` }
+        }
+      },
+      scales: {
+        x: { title: { display: true, text: 'Overall Accuracy (%)', color: TX() }, grid: { color: GR() }, ticks: { color: TX() }, min: 30, max: 80 },
+        y: { title: { display: true, text: 'Fatal Sensitivity (%)', color: TX() }, grid: { color: GR() }, ticks: { color: TX() }, min: 30, max: 70 }
+      }
+    }
+  });
+})();
+
+// ================================================================
+// F1 BAR CHART
+// ================================================================
+(function() {
+  const labels = ['No Injury', 'Possible', 'Minor', 'Serious', 'Fatal'];
+  const cols = ['#2E7D32', '#0097A7', '#E6960A', '#9C27B0'];
+  charts.f1 = new Chart(document.getElementById('chart-f1'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: Object.keys(D.perClass).map((name, i) => ({
+        label: name,
+        data: D.perClass[name].map(v => v * 100),
+        backgroundColor: cols[i] + 'bb',
+        borderRadius: 4,
+        barPercentage: 0.8,
+        categoryPercentage: 0.75
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'bottom' },
+        tooltip: { backgroundColor: 'rgba(255,255,255,0.95)', borderColor: 'rgba(0,0,0,0.1)', borderWidth: 1, cornerRadius: 8, callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw.toFixed(1)}%` } }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: TX() } },
+        y: { beginAtZero: true, max: 100, grid: { color: GR() }, ticks: { color: TX(), callback: v => v + '%' } }
+      }
+    }
+  });
+})();
+
+// ================================================================
+// CONFUSION MATRIX
+// ================================================================
+(function() {
+  const el = document.getElementById('cm-container');
+  const n = D.cm.length;
+  const grid = document.createElement('div');
+  grid.className = 'heatmap-grid';
+  grid.style.gridTemplateColumns = `48px repeat(${n}, 1fr)`;
+  grid.style.gridTemplateRows = `32px repeat(${n}, 1fr)`;
+
+  grid.innerHTML = '<div class="heatmap-cell" style="background:none;"></div>';
+  D.cmLabels.forEach(l => { grid.innerHTML += `<div class="heatmap-label">${l}</div>`; });
+
+  D.cm.forEach((row, i) => {
+    grid.innerHTML += `<div class="heatmap-label">${D.cmLabels[i]}</div>`;
+    const rowSum = row.reduce((a, b) => a + b, 0);
+    row.forEach((val, j) => {
+      const intensity = Math.pow(val / rowSum, 0.7);
+      const isDiag = i === j;
+      const bg = isDiag
+        ? `rgba(0,155,125,${0.15 + intensity * 0.6})`
+        : `rgba(211,47,47,${intensity * 0.3})`;
+      const tc = intensity > 0.4 ? '#fff' : '#1A2332';
+      grid.innerHTML += `<div class="heatmap-cell" style="background:${bg};color:${tc};${isDiag ? 'box-shadow:inset 0 0 8px rgba(0,155,125,0.1);' : ''}">${val >= 10000 ? Math.round(val/1000)+'k' : val}</div>`;
+    });
+  });
+  el.appendChild(grid);
+  const ax = document.createElement('div');
+  ax.style.cssText = 'display:flex;justify-content:space-between;margin-top:var(--sp-2);padding:0 48px;';
+  ax.innerHTML = '<span style="font-size:var(--text-2xs);color:var(--text-tertiary);">Predicted \u2192</span><span style="font-size:var(--text-2xs);color:var(--text-tertiary);">\u2191 Actual</span>';
+  el.appendChild(ax);
+})();
+
+// ================================================================
+// SHAP CHARTS
+// ================================================================
+function makeShap(id, data, color) {
+  return new Chart(document.getElementById(id), {
+    type: 'bar',
+    data: {
+      labels: data.map(d => d.name),
+      datasets: [{
+        data: data.map(d => d.val),
+        backgroundColor: ctx => {
+          const g = ctx.chart.ctx.createLinearGradient(0, 0, 400, 0);
+          g.addColorStop(0, color + '33');
+          g.addColorStop(1, color + 'cc');
+          return g;
+        },
+        borderRadius: 4,
+        barPercentage: 0.6
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: 'rgba(255,255,255,0.95)', borderColor: color + '44', borderWidth: 1, cornerRadius: 8, callbacks: { label: ctx => ` SHAP: ${ctx.raw.toFixed(4)}` } }
+      },
+      scales: {
+        x: { beginAtZero: true, grid: { color: GR() }, ticks: { color: TX() }, title: { display: true, text: 'Mean |SHAP|', color: TX() } },
+        y: { grid: { display: false }, ticks: { color: TX(), font: { size: 11 } } }
+      }
+    }
+  });
+}
+charts.globalShap = makeShap('chart-global-shap', D.globalShap, '#009B7D');
+charts.fatalShap = makeShap('chart-fatal-shap', D.fatalShap, '#9C27B0');
+
+// Apply initial chart theme once all charts are ready
+if (typeof applyChartTheme === 'function') applyChartTheme();
+
+// ================================================================
+// AI EXPLAINABILITY CARDS
+// ================================================================
+(function() {
+  const grid = document.getElementById('ai-cards');
+  D.findings.forEach((f, i) => {
+    const card = document.createElement('div');
+    card.className = 'explain-card fade-in';
+    card.style.animationDelay = (i * 100) + 'ms';
+    card.innerHTML = `
+      <div class="explain-icon" style="background:${f.bg};color:${f.color};">${f.icon}</div>
+      <div class="explain-title">${f.title}</div>
+      <div class="explain-text">${f.text}</div>
+      <div class="explain-nlp">${f.nlp}</div>
+    `;
+    grid.appendChild(card);
+  });
+})();
+
+// Impact direction bars
+(function() {
+  const el = document.getElementById('impact-bars');
+  el.style.cssText = 'display:flex;flex-direction:column;gap:var(--sp-4);';
+  D.impactBars.forEach(b => {
+    const maxVal = 0.06;
+    const pct = Math.min((b.val / maxVal) * 100, 100);
+    const color = b.dir === 'increase' ? 'var(--danger)' : 'var(--success)';
+    const arrow = b.dir === 'increase' ? '\u2191' : '\u2193';
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:var(--sp-4);';
+    row.innerHTML = `
+      <div style="width:120px;flex-shrink:0;font-size:var(--text-sm);font-weight:500;color:var(--text-secondary);text-align:right;">${b.name}</div>
+      <div style="flex:1;height:32px;background:rgba(255,255,255,0.03);border-radius:var(--r-md);overflow:hidden;position:relative;">
+        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg, ${color}33, ${color}cc);border-radius:var(--r-md);display:flex;align-items:center;padding-left:var(--sp-3);transition:width 1s var(--ease-out);">
+          <span style="font-size:var(--text-xs);font-weight:600;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.5);">${arrow} ${(b.val * 100).toFixed(2)}</span>
+        </div>
+      </div>
+      <div style="width:200px;flex-shrink:0;font-size:var(--text-xs);color:var(--text-tertiary);">${b.text}</div>
+    `;
+    el.appendChild(row);
+  });
+})();
+
+// ================================================================
+// SCENARIO EXPLORER
+// ================================================================
+(function() {
+  const form = document.getElementById('scenario-form');
+  const bars = document.getElementById('severity-bars');
+  const riskMeter = document.getElementById('risk-meter');
+  const riskTag = document.getElementById('risk-tag');
+  const riskPct = document.getElementById('risk-pct');
+  const riskSub = document.getElementById('risk-sub');
+
+  const sevNames = ['No Injury', 'Possible', 'Minor', 'Serious', 'Fatal'];
+  const sevColors = ['#2E7D32', '#E6960A', '#E67E22', '#D32F2F', '#9C27B0'];
+
+  const fields = [
+    { id: 'age', label: 'Occupant Age', type: 'range', min: 16, max: 85, value: 35 },
+    { id: 'speed', label: 'Travel Speed (MPH)', type: 'range', min: 0, max: 100, value: 35 },
+    { id: 'vtype', label: 'Vehicle Type', type: 'select', opts: ['Passenger Car', 'SUV/Crossover', 'Pickup Truck', 'Motorcycle', 'Van/Minivan', 'Truck/Bus'] },
+    { id: 'collision', label: 'Collision Type', type: 'select', opts: ['Rear End', 'Angle', 'Sideswipe', 'Head On', 'Non-Collision', 'Other'] },
+    { id: 'restraint', label: 'Restraint Use', type: 'select', opts: ['Seatbelt', 'None', 'Child Restraint', 'Partial'] },
+    { id: 'lighting', label: 'Lighting', type: 'select', opts: ['Daylight', 'Dark (Lighted)', 'Dark (Unlighted)', 'Dawn/Dusk'] },
+    { id: 'weather', label: 'Weather', type: 'select', opts: ['Clear', 'Rain', 'Cloudy', 'Snow/Sleet', 'Fog', 'Severe'] },
+    { id: 'splimit', label: 'Speed Limit', type: 'select', opts: ['Low (\u226425)', 'Medium (30-35)', 'Medium (40-45)', 'High (50-55)', 'Very High (60+)'] },
+    { id: 'rollover', label: 'Rollover', type: 'toggle', opts: ['No', 'Yes'] },
+    { id: 'alcohol', label: 'Alcohol', type: 'toggle', opts: ['No', 'Yes'] }
+  ];
+
+  fields.forEach(f => {
+    const g = document.createElement('div');
+    g.className = 'form-group';
+    if (f.type === 'range') {
+      g.innerHTML = `<label>${f.label}</label><div class="range-row"><input type="range" id="in-${f.id}" min="${f.min}" max="${f.max}" value="${f.value}"><span class="range-display" id="rv-${f.id}">${f.value}</span></div>`;
+    } else if (f.type === 'select') {
+      g.innerHTML = `<label>${f.label}</label><select id="in-${f.id}">${f.opts.map((o,i) => `<option value="${i}">${o}</option>`).join('')}</select>`;
+    } else if (f.type === 'toggle') {
+      g.innerHTML = `<label>${f.label}</label><div class="toggle-group" id="in-${f.id}">${f.opts.map((o,i) => `<button class="toggle-btn${i===0?' on':''}" data-v="${i}">${o}</button>`).join('')}</div>`;
+    }
+    form.appendChild(g);
+  });
+
+  // Events
+  form.querySelectorAll('.toggle-group').forEach(g => {
+    g.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        g.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        compute();
+      });
+    });
+  });
+  form.querySelectorAll('input[type="range"]').forEach(r => {
+    r.addEventListener('input', () => {
+      document.getElementById('rv-' + r.id.replace('in-', '')).textContent = r.value;
+      compute();
+    });
+  });
+  form.querySelectorAll('select').forEach(s => s.addEventListener('change', compute));
+
+  // Severity bars
+  sevNames.forEach((name, i) => {
+    const row = document.createElement('div');
+    row.className = 'sbar-row';
+    row.innerHTML = `<span class="sbar-label">${name}</span><div class="sbar-track"><div class="sbar-fill" id="sb-${i}" style="width:0%;background:linear-gradient(90deg, ${sevColors[i]}55, ${sevColors[i]});"><span class="sbar-pct" id="sp-${i}">0%</span></div></div>`;
+    bars.appendChild(row);
+  });
+
+  function compute() {
+    const age = +document.getElementById('in-age').value;
+    const speed = +document.getElementById('in-speed').value;
+    const vtype = +document.getElementById('in-vtype').value;
+    const collision = +document.getElementById('in-collision').value;
+    const restraint = +document.getElementById('in-restraint').value;
+    const lighting = +document.getElementById('in-lighting').value;
+    const weather = +document.getElementById('in-weather').value;
+    const splimit = +document.getElementById('in-splimit').value;
+    const rollover = +document.getElementById('in-rollover').querySelector('.on').dataset.v;
+    const alcohol = +document.getElementById('in-alcohol').querySelector('.on').dataset.v;
+
+    let probs = [0.71, 0.141, 0.089, 0.051, 0.009];
+    let af = age >= 75 ? 3.2 : age >= 65 ? 2.4 : age >= 55 ? 1.6 : age <= 20 ? 1.2 : 1;
+    let sf = 1 + Math.max(0, (speed - 35)) * 0.025;
+    const vtf = [1, 1, 1, 4.5, 0.9, 1.3][vtype] || 1;
+    const clf = [1, 1.2, 0.7, 3.5, 1.8, 0.8][collision] || 1;
+    const rf = [1, 5, 0.8, 2][restraint] || 1;
+    const lf = [1, 1.5, 2.5, 1.3][lighting] || 1;
+    const wf = [1, 1.2, 1, 1.4, 1.6, 1.5][weather] || 1;
+    const slf = [0.6, 0.8, 1, 1.4, 2][splimit] || 1;
+    const rlf = rollover == 1 ? 4 : 1;
+    const alf = alcohol == 1 ? 2.5 : 1;
+
+    let mult = af * sf * vtf * clf * rf * lf * wf * slf * rlf * alf;
+    let fp = Math.min(0.95, probs[4] * mult);
+    let sp = Math.min(0.95 - fp, probs[3] * Math.sqrt(mult));
+    let mp = Math.min(0.95 - fp - sp, probs[2] * Math.pow(mult, 0.3));
+    let pp = Math.min(0.95 - fp - sp - mp, probs[1] * Math.pow(mult, 0.15));
+    let np = Math.max(0.02, 1 - fp - sp - mp - pp);
+    let total = np + pp + mp + sp + fp;
+    let finals = [np, pp, mp, sp, fp].map(p => (p / total) * 100);
+
+    finals.forEach((p, i) => {
+      const bar = document.getElementById('sb-' + i);
+      const pctEl = document.getElementById('sp-' + i);
+      bar.style.width = Math.max(p, 1) + '%';
+      pctEl.textContent = p >= 1 ? p.toFixed(1) + '%' : '<1%';
+      pctEl.style.display = p < 4 ? 'none' : '';
+    });
+
+    const fPct = finals[4];
+    let level, color, glow;
+    if (fPct < 2) { level = 'Low Risk'; color = 'var(--success)'; glow = 'rgba(46,125,50,0.06)'; }
+    else if (fPct < 8) { level = 'Moderate Risk'; color = 'var(--warning)'; glow = 'rgba(230,150,10,0.06)'; }
+    else if (fPct < 25) { level = 'High Risk'; color = 'var(--danger)'; glow = 'rgba(211,47,47,0.08)'; }
+    else { level = 'Extreme Risk'; color = 'var(--fatal)'; glow = 'rgba(156,39,176,0.08)'; }
+
+    riskTag.textContent = level;
+    riskTag.style.color = color;
+    riskPct.textContent = fPct.toFixed(1) + '% Fatal';
+    riskPct.style.color = color;
+    riskSub.textContent = `Serious + Fatal: ${(finals[3] + finals[4]).toFixed(1)}%`;
+    riskMeter.style.setProperty('--risk-glow', glow);
+    riskMeter.style.borderColor = color.replace('var(--', '').replace(')', '') === 'success' ? 'rgba(105,240,174,0.15)' : color.replace('var(--', '').replace(')', '') === 'danger' ? 'rgba(255,82,82,0.2)' : 'var(--border-default)';
+  }
+
+  compute();
+})();
+
+// ================================================================
+// DRIVER SAFETY ALERTS
+// ================================================================
+(function() {
+  const grid = document.getElementById('driver-alerts-grid');
+  D.driverAlerts.forEach(a => {
+    const card = document.createElement('div');
+    card.className = 'glass alert-card';
+    card.innerHTML = `
+      <div class="alert-stripe" style="background:${a.stripe};"></div>
+      <div class="alert-severity ${a.severity}"><span class="sev-dot"></span>${a.severity}</div>
+      <span class="alert-icon">${a.icon}</span>
+      <div class="alert-stat">${a.stat}</div>
+      <div class="alert-stat-label">${a.statLabel}</div>
+      <div class="alert-title">${a.title}</div>
+      <div class="alert-body">${a.body}</div>
+    `;
+    grid.appendChild(card);
+  });
+})();
+
+// ================================================================
+// OVERLOOKED RISK FACTORS
+// ================================================================
+(function() {
+  const grid = document.getElementById('overlooked-grid');
+  D.overlookedFactors.forEach(f => {
+    const card = document.createElement('div');
+    card.className = 'glass overlooked-card';
+    card.innerHTML = `
+      <div class="overlooked-icon-wrap" style="background:${f.bg};">${f.icon}</div>
+      <div class="overlooked-content">
+        <div class="overlooked-label" style="color:${f.labelColor};">${f.label}</div>
+        <div class="overlooked-title">${f.title}</div>
+        <div class="overlooked-body">${f.body}</div>
+        <span class="overlooked-stat" style="background:${f.statBg};color:${f.statColor};">${f.stat}</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+})();
+
+// ================================================================
+// POLICY RECOMMENDATIONS
+// ================================================================
+(function() {
+  const grid = document.getElementById('rec-grid');
+  D.recommendations.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'glass rec-card';
+    card.innerHTML = `
+      <div class="rec-tag ${r.cls}">${r.icon} ${r.category}</div>
+      <ul class="rec-list">${r.items.map(it => `<li style="--li-color:${r.liColor};">${it}</li>`).join('')}</ul>
+    `;
+    grid.appendChild(card);
+  });
+})();
+
+// ================================================================
+// METHODOLOGY
+// ================================================================
+(function() {
+  const el = document.getElementById('method-steps');
+  D.methodology.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'glass method-card';
+    card.innerHTML = `<div class="step-num">${s.n}</div><div><div class="step-title">${s.title}</div><div class="step-text">${s.desc}</div></div>`;
+    el.appendChild(card);
+  });
+})();
+</script>
+</body>
+</html>

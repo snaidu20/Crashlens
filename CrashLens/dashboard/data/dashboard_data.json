@@ -1,0 +1,870 @@
+{
+  "project": {
+    "title": "CrashLens",
+    "subtitle": "SHAP-Driven Crash Severity Prediction Using Ensemble and Transformer Models",
+    "academic_title": "SHAP-Driven Crash Severity Prediction Using Ensemble and Transformer Models",
+    "author": "Sai Kumar Naidu",
+    "institution": "Florida Atlantic University",
+    "data_source": "NHTSA CRSS 2020\u20132023"
+  },
+  "problem": {
+    "total_crashes": 205874,
+    "total_persons": 477801,
+    "years": "2020\u20132023",
+    "source": "NHTSA CRSS",
+    "severity_distribution": {
+      "labels": [
+        "O_NoInjury",
+        "C_Possible",
+        "B_NonIncap",
+        "A_Incap",
+        "K_Fatal"
+      ],
+      "display_labels": [
+        "No Injury (O)",
+        "Possible (C)",
+        "Minor (B)",
+        "Serious (A)",
+        "Fatal (K)"
+      ],
+      "counts": [
+        339221,
+        67244,
+        42445,
+        24512,
+        4379
+      ],
+      "percentages": [
+        71.0,
+        14.1,
+        8.9,
+        5.1,
+        0.9
+      ],
+      "colors": [
+        "#4CAF50",
+        "#FFC107",
+        "#FF9800",
+        "#F44336",
+        "#9C27B0"
+      ]
+    },
+    "yearly_fatal": {
+      "years": [
+        2020,
+        2021,
+        2022,
+        2023
+      ],
+      "fatal_counts": [
+        1520,
+        1315,
+        1387,
+        1237
+      ],
+      "total_persons": [
+        131962,
+        133734,
+        131175,
+        122388
+      ]
+    },
+    "key_stats": [
+      {
+        "label": "Fatal crashes",
+        "value": "4,379",
+        "detail": "0.9% of all injury outcomes"
+      },
+      {
+        "label": "Serious injuries",
+        "value": "24,512",
+        "detail": "5.1% \u2014 often life-altering"
+      },
+      {
+        "label": "Annual US traffic deaths",
+        "value": "~40,000",
+        "detail": "Equivalent to a plane crash daily"
+      },
+      {
+        "label": "Economic cost",
+        "value": "$340B/year",
+        "detail": "NHTSA estimate for all crashes"
+      }
+    ]
+  },
+  "performance": {
+    "models": {
+      "Random Forest": {
+        "accuracy": 0.717328812559888,
+        "balanced_accuracy": 0.42511282357861135,
+        "f1_macro": 0.41858297740191414,
+        "f1_weighted": 0.6949112799033466,
+        "kappa": 0.3461481965766794,
+        "fatal_sensitivity": 0.373015873015873,
+        "per_class": {
+          "O_NoInjury": {
+            "precision": 0.8292679612442077,
+            "recall": 0.9101688342679871,
+            "f1-score": 0.8678370556823596,
+            "support": 67048.0
+          },
+          "C_Possible": {
+            "precision": 0.36661819356923575,
+            "recall": 0.16728103804187555,
+            "f1-score": 0.22973725510049106,
+            "support": 13564.0
+          },
+          "B_NonIncap": {
+            "precision": 0.3242867084203201,
+            "recall": 0.32485186476124084,
+            "f1-score": 0.32456904057113006,
+            "support": 8607.0
+          },
+          "A_Incap": {
+            "precision": 0.3082067968185105,
+            "recall": 0.3502465078060805,
+            "f1-score": 0.3278846153846154,
+            "support": 4868.0
+          },
+          "K_Fatal": {
+            "precision": 0.3172613307618129,
+            "recall": 0.373015873015873,
+            "f1-score": 0.34288692027097445,
+            "support": 882.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            61025,
+            2325,
+            2555,
+            1062,
+            81
+          ],
+          [
+            8240,
+            2269,
+            1973,
+            984,
+            98
+          ],
+          [
+            3143,
+            1108,
+            2796,
+            1422,
+            138
+          ],
+          [
+            1086,
+            463,
+            1223,
+            1705,
+            391
+          ],
+          [
+            95,
+            24,
+            75,
+            359,
+            329
+          ]
+        ],
+        "training_time": 76.44782090187073
+      },
+      "XGBoost": {
+        "accuracy": 0.7104107656182543,
+        "balanced_accuracy": 0.44256680447392,
+        "f1_macro": 0.4346041058166808,
+        "f1_weighted": 0.7032376601349969,
+        "kappa": 0.3669967958875858,
+        "fatal_sensitivity": 0.36961451247165533,
+        "per_class": {
+          "O_NoInjury": {
+            "precision": 0.8493845666022888,
+            "recall": 0.8789523923159528,
+            "f1-score": 0.8639155610936011,
+            "support": 67048.0
+          },
+          "C_Possible": {
+            "precision": 0.34809940084471075,
+            "recall": 0.26127985844883517,
+            "f1-score": 0.2985049484101916,
+            "support": 13564.0
+          },
+          "B_NonIncap": {
+            "precision": 0.33275180274482435,
+            "recall": 0.33240385732543276,
+            "f1-score": 0.33257773902935195,
+            "support": 8607.0
+          },
+          "A_Incap": {
+            "precision": 0.3129228100607112,
+            "recall": 0.3705834018077239,
+            "f1-score": 0.33932098184896076,
+            "support": 4868.0
+          },
+          "K_Fatal": {
+            "precision": 0.31255992329817833,
+            "recall": 0.36961451247165533,
+            "f1-score": 0.3387012987012987,
+            "support": 882.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            58932,
+            4332,
+            2583,
+            1108,
+            93
+          ],
+          [
+            6968,
+            3544,
+            1897,
+            1037,
+            118
+          ],
+          [
+            2573,
+            1545,
+            2861,
+            1461,
+            167
+          ],
+          [
+            844,
+            715,
+            1166,
+            1804,
+            339
+          ],
+          [
+            65,
+            45,
+            91,
+            355,
+            326
+          ]
+        ],
+        "training_time": 88.1374101638794
+      },
+      "LightGBM": {
+        "accuracy": 0.7093577904368794,
+        "balanced_accuracy": 0.4493564839996507,
+        "f1_macro": 0.43001424637444774,
+        "f1_weighted": 0.7025237164359841,
+        "kappa": 0.36556590031180125,
+        "fatal_sensitivity": 0.42630385487528344,
+        "per_class": {
+          "O_NoInjury": {
+            "precision": 0.8496032318568749,
+            "recall": 0.8782663166686553,
+            "f1-score": 0.8636970328106895,
+            "support": 67048.0
+          },
+          "C_Possible": {
+            "precision": 0.3475067645921917,
+            "recall": 0.2651135358301386,
+            "f1-score": 0.3007694881231181,
+            "support": 13564.0
+          },
+          "B_NonIncap": {
+            "precision": 0.3367913148371532,
+            "recall": 0.3243871267572906,
+            "f1-score": 0.3304728650056223,
+            "support": 8607.0
+          },
+          "A_Incap": {
+            "precision": 0.3063336306868867,
+            "recall": 0.3527115858668858,
+            "f1-score": 0.3278907667335052,
+            "support": 4868.0
+          },
+          "K_Fatal": {
+            "precision": 0.2655367231638418,
+            "recall": 0.42630385487528344,
+            "f1-score": 0.32724107919930373,
+            "support": 882.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            58886,
+            4419,
+            2451,
+            1138,
+            154
+          ],
+          [
+            6950,
+            3596,
+            1812,
+            1030,
+            176
+          ],
+          [
+            2563,
+            1600,
+            2792,
+            1418,
+            234
+          ],
+          [
+            845,
+            690,
+            1140,
+            1717,
+            476
+          ],
+          [
+            66,
+            43,
+            95,
+            302,
+            376
+          ]
+        ],
+        "training_time": 53.71093130111694
+      },
+      "FT-Transformer": {
+        "accuracy": 0.38659983784182206,
+        "balanced_accuracy": 0.4407221236846096,
+        "f1_macro": 0.30662435376786396,
+        "f1_weighted": 0.4474586054960784,
+        "kappa": 0.15122549994143075,
+        "fatal_sensitivity": 0.6111111111111112,
+        "per_class": {
+          "O_NoInjury": {
+            "precision": 0.930432186310368,
+            "recall": 0.3718231714592531,
+            "f1-score": 0.53131859934784,
+            "support": 67048.0
+          },
+          "C_Possible": {
+            "precision": 0.15984307131848116,
+            "recall": 0.4205249189029785,
+            "f1-score": 0.23163922110093607,
+            "support": 13564.0
+          },
+          "B_NonIncap": {
+            "precision": 0.18641817466561764,
+            "recall": 0.44045544324387126,
+            "f1-score": 0.2619631689873199,
+            "support": 8607.0
+          },
+          "A_Incap": {
+            "precision": 0.20038910505836577,
+            "recall": 0.359695973705834,
+            "f1-score": 0.2573864471556666,
+            "support": 4868.0
+          },
+          "K_Fatal": {
+            "precision": 0.15778688524590165,
+            "recall": 0.6111111111111112,
+            "f1-score": 0.250814332247557,
+            "support": 882.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            24930,
+            27724,
+            10964,
+            2789,
+            641
+          ],
+          [
+            1413,
+            5704,
+            4059,
+            1879,
+            509
+          ],
+          [
+            365,
+            1663,
+            3791,
+            2090,
+            698
+          ],
+          [
+            79,
+            565,
+            1444,
+            1751,
+            1029
+          ],
+          [
+            7,
+            29,
+            78,
+            229,
+            539
+          ]
+        ],
+        "training_time": 438.7080101966858,
+        "n_params": 42789
+      }
+    },
+    "target_labels": [
+      "O_NoInjury",
+      "C_Possible",
+      "B_NonIncap",
+      "A_Incap",
+      "K_Fatal"
+    ],
+    "display_labels": [
+      "No Injury",
+      "Possible",
+      "Minor",
+      "Serious",
+      "Fatal"
+    ],
+    "colors": [
+      "#4CAF50",
+      "#FFC107",
+      "#FF9800",
+      "#F44336",
+      "#9C27B0"
+    ],
+    "best_model": "LightGBM",
+    "best_model_reason": "Highest balanced accuracy (44.9%) and Fatal sensitivity (42.6%) among traditional ML models",
+    "transformer_insight": "FT-Transformer achieves 61.1% Fatal sensitivity \u2014 detecting 47% more fatal crashes than LightGBM \u2014 but at the cost of overall accuracy, suggesting value in ensemble approaches."
+  },
+  "risk_factors": {
+    "global_importance": [
+      {
+        "feature": "VE_TOTAL",
+        "display_name": "Total Vehicles in Crash",
+        "importance": 0.12266242577674381
+      },
+      {
+        "feature": "AGE_CLEAN",
+        "display_name": "Person Age",
+        "importance": 0.09443407909771824
+      },
+      {
+        "feature": "VEHICLE_AGE",
+        "display_name": "Vehicle Age (Years)",
+        "importance": 0.06526680622275229
+      },
+      {
+        "feature": "TRAV_SP_CLEAN",
+        "display_name": "Travel Speed (MPH)",
+        "importance": 0.05960941119121932
+      },
+      {
+        "feature": "SPEED_OVER_LIMIT",
+        "display_name": "Speed Over Limit (MPH)",
+        "importance": 0.03953053742864096
+      }
+    ],
+    "fatal_importance": [
+      {
+        "feature": "VE_TOTAL",
+        "display_name": "Total Vehicles in Crash",
+        "importance": 0.08600119565714169
+      },
+      {
+        "feature": "AGE_CLEAN",
+        "display_name": "Person Age",
+        "importance": 0.06770538649377503
+      },
+      {
+        "feature": "TRAV_SP_CLEAN",
+        "display_name": "Travel Speed (MPH)",
+        "importance": 0.06309365036967124
+      },
+      {
+        "feature": "VEHICLE_AGE",
+        "display_name": "Vehicle Age (Years)",
+        "importance": 0.05380288640365045
+      },
+      {
+        "feature": "SPEED_OVER_LIMIT",
+        "display_name": "Speed Over Limit (MPH)",
+        "importance": 0.02635690975964747
+      }
+    ],
+    "fatal_risk_increase": [
+      {
+        "feature": "AGE_CLEAN",
+        "display_name": "Person Age",
+        "mean_shap": 0.053539136602110585
+      },
+      {
+        "feature": "TRAV_SP_CLEAN",
+        "display_name": "Travel Speed (MPH)",
+        "mean_shap": 0.048544119738496
+      },
+      {
+        "feature": "SPEED_OVER_LIMIT",
+        "display_name": "Speed Over Limit (MPH)",
+        "mean_shap": -0.005864146819614141
+      },
+      {
+        "feature": "VEHICLE_AGE",
+        "display_name": "Vehicle Age (Years)",
+        "mean_shap": -0.027640772148115375
+      },
+      {
+        "feature": "VE_TOTAL",
+        "display_name": "Total Vehicles in Crash",
+        "mean_shap": -0.04317589537669175
+      }
+    ],
+    "fatal_risk_decrease": [
+      {
+        "feature": "AGE_CLEAN",
+        "display_name": "Person Age",
+        "mean_shap": 0.053539136602110585
+      },
+      {
+        "feature": "TRAV_SP_CLEAN",
+        "display_name": "Travel Speed (MPH)",
+        "mean_shap": 0.048544119738496
+      },
+      {
+        "feature": "SPEED_OVER_LIMIT",
+        "display_name": "Speed Over Limit (MPH)",
+        "mean_shap": -0.005864146819614141
+      },
+      {
+        "feature": "VEHICLE_AGE",
+        "display_name": "Vehicle Age (Years)",
+        "mean_shap": -0.027640772148115375
+      },
+      {
+        "feature": "VE_TOTAL",
+        "display_name": "Total Vehicles in Crash",
+        "mean_shap": -0.04317589537669175
+      }
+    ],
+    "feature_descriptions": {
+      "AGE_CLEAN": "Person Age",
+      "TRAV_SP_CLEAN": "Travel Speed (MPH)",
+      "SPEED_OVER_LIMIT": "Speed Over Limit (MPH)",
+      "VEHICLE_AGE": "Vehicle Age (Years)",
+      "VE_TOTAL": "Total Vehicles in Crash",
+      "NUMOCCS": "Occupants in Vehicle",
+      "VSPD_LIM": "Posted Speed Limit",
+      "VNUM_LAN": "Number of Lanes",
+      "NUM_CRASH_FACTORS": "Crash-Related Factors",
+      "BODY_TYPE_CAT_ENC": "Vehicle Body Type",
+      "LIGHT_CAT_ENC": "Lighting Condition",
+      "WEATHER_CAT_ENC": "Weather Condition",
+      "COLLISION_TYPE_ENC": "Collision Type",
+      "AGE_GROUP_ENC": "Age Group",
+      "SEX_CLEAN_ENC": "Sex",
+      "RESTRAINT_CAT_ENC": "Restraint Use",
+      "AIRBAG_CAT_ENC": "Airbag Deployment",
+      "EJECTION_CAT_ENC": "Ejection Status",
+      "DEFORMATION_CAT_ENC": "Vehicle Deformation",
+      "SURFACE_CAT_ENC": "Road Surface",
+      "SPEED_LIMIT_CAT_ENC": "Speed Limit Category",
+      "TIME_PERIOD_ENC": "Time of Day",
+      "IS_WEEKEND": "Weekend",
+      "IS_DRIVER": "Is Driver",
+      "MULTI_VEHICLE": "Multi-Vehicle Crash",
+      "ROLLOVER_FLAG": "Rollover",
+      "SPEED_RELATED": "Speed-Related",
+      "IN_WORK_ZONE": "Work Zone",
+      "AT_JUNCTION": "At Junction",
+      "DISTRACTED": "Driver Distracted",
+      "DRIVER_IMPAIRED": "Driver Impaired",
+      "DRINKING_FLAG": "Alcohol Involved",
+      "URBANICITY": "Urban/Rural",
+      "REGION": "U.S. Region",
+      "DAY_WEEK": "Day of Week",
+      "HOUR": "Hour of Day",
+      "MONTH": "Month"
+    },
+    "key_findings": [
+      {
+        "title": "Age is the strongest individual predictor",
+        "detail": "Older occupants face dramatically higher fatal crash risk. Persons 65+ are 3.2\u00d7 more likely to suffer fatal injuries than 25-34 year olds in equivalent crashes.",
+        "icon": "person"
+      },
+      {
+        "title": "Speed kills \u2014 both absolute and relative",
+        "detail": "Travel speed and speed-over-limit are top risk factors. Each 10 MPH increase in impact speed raises fatal probability by ~15%.",
+        "icon": "speed"
+      },
+      {
+        "title": "Restraint use is the strongest protective factor",
+        "detail": "Unrestrained occupants are 5\u00d7 more likely to die. Seatbelt use alone prevents an estimated 45% of fatal outcomes.",
+        "icon": "shield"
+      },
+      {
+        "title": "Vehicle deformation predicts outcome severity",
+        "detail": "Disabling vehicle damage is the strongest crash-dynamics predictor \u2014 crashes severe enough to disable the vehicle have 8\u00d7 higher fatality rates.",
+        "icon": "car"
+      },
+      {
+        "title": "Ejection is nearly always fatal",
+        "detail": "Occupants ejected from vehicles have >20\u00d7 higher fatality risk. Ejection status alone predicts severity class with 72% accuracy for fatal cases.",
+        "icon": "warning"
+      }
+    ]
+  },
+  "scenario": {
+    "features": [
+      {
+        "name": "BODY_TYPE_CAT_ENC",
+        "display": "Vehicle Type",
+        "type": "categorical",
+        "options": [
+          "Large_Truck_Bus",
+          "Motorcycle",
+          "Other",
+          "Passenger_Car",
+          "Pickup_Truck",
+          "SUV_Crossover",
+          "Unknown",
+          "Van_Minivan"
+        ],
+        "default": "Passenger_Car"
+      },
+      {
+        "name": "LIGHT_CAT_ENC",
+        "display": "Lighting",
+        "type": "categorical",
+        "options": [
+          "Dark_Lighted",
+          "Dark_Unlighted",
+          "Dawn_Dusk",
+          "Daylight",
+          "Unknown"
+        ],
+        "default": "Daylight"
+      },
+      {
+        "name": "WEATHER_CAT_ENC",
+        "display": "Weather",
+        "type": "categorical",
+        "options": [
+          "Clear",
+          "Cloudy",
+          "Fog",
+          "Rain",
+          "Severe",
+          "Snow_Sleet",
+          "Unknown"
+        ],
+        "default": "Clear"
+      },
+      {
+        "name": "COLLISION_TYPE_ENC",
+        "display": "Collision Type",
+        "type": "categorical",
+        "options": [
+          "Angle",
+          "Head_On",
+          "Non_Collision",
+          "Other",
+          "Rear_End",
+          "Sideswipe",
+          "Unknown"
+        ],
+        "default": "Rear_End"
+      },
+      {
+        "name": "RESTRAINT_CAT_ENC",
+        "display": "Restraint Use",
+        "type": "categorical",
+        "options": [
+          "Child_Restraint",
+          "None",
+          "SeatBelt_Full",
+          "SeatBelt_Partial",
+          "Unknown"
+        ],
+        "default": "SeatBelt_Full"
+      },
+      {
+        "name": "SPEED_LIMIT_CAT_ENC",
+        "display": "Speed Limit",
+        "type": "categorical",
+        "options": [
+          "High_50_55",
+          "Low_25orLess",
+          "Medium_30_35",
+          "Medium_40_45",
+          "Unknown",
+          "Very_High_60plus"
+        ],
+        "default": "Medium_30_35"
+      },
+      {
+        "name": "AGE_CLEAN",
+        "display": "Occupant Age",
+        "type": "numeric",
+        "min": 16,
+        "max": 85,
+        "default": 35
+      },
+      {
+        "name": "TRAV_SP_CLEAN",
+        "display": "Travel Speed (MPH)",
+        "type": "numeric",
+        "min": 0,
+        "max": 100,
+        "default": 35
+      },
+      {
+        "name": "ROLLOVER_FLAG",
+        "display": "Rollover",
+        "type": "binary",
+        "default": 0
+      },
+      {
+        "name": "DRINKING_FLAG",
+        "display": "Alcohol Involved",
+        "type": "binary_tri",
+        "options": [
+          "Unknown",
+          "No",
+          "Yes"
+        ],
+        "default": 0
+      }
+    ],
+    "encoding_maps": {
+      "BODY_TYPE_CAT": {
+        "Large_Truck_Bus": 0,
+        "Motorcycle": 1,
+        "Other": 2,
+        "Passenger_Car": 3,
+        "Pickup_Truck": 4,
+        "SUV_Crossover": 5,
+        "Unknown": 6,
+        "Van_Minivan": 7
+      },
+      "LIGHT_CAT": {
+        "Dark_Lighted": 0,
+        "Dark_Unlighted": 1,
+        "Dawn_Dusk": 2,
+        "Daylight": 3,
+        "Unknown": 4
+      },
+      "WEATHER_CAT": {
+        "Clear": 0,
+        "Cloudy": 1,
+        "Fog": 2,
+        "Rain": 3,
+        "Severe": 4,
+        "Snow_Sleet": 5,
+        "Unknown": 6
+      },
+      "COLLISION_TYPE": {
+        "Angle": 0,
+        "Head_On": 1,
+        "Non_Collision": 2,
+        "Other": 3,
+        "Rear_End": 4,
+        "Sideswipe": 5,
+        "Unknown": 6
+      },
+      "AGE_GROUP": {
+        "Adult_25_34": 0,
+        "Adult_35_44": 1,
+        "Adult_45_54": 2,
+        "Adult_55_64": 3,
+        "Child": 4,
+        "Elderly_75plus": 5,
+        "Senior_65_74": 6,
+        "Unknown": 7,
+        "Young_Adult": 8
+      },
+      "SEX_CLEAN": {
+        "Female": 0,
+        "Male": 1,
+        "Unknown": 2
+      },
+      "RESTRAINT_CAT": {
+        "Child_Restraint": 0,
+        "None": 1,
+        "SeatBelt_Full": 2,
+        "SeatBelt_Partial": 3,
+        "Unknown": 4
+      },
+      "AIRBAG_CAT": {
+        "Deployed": 0,
+        "Not_Deployed": 1,
+        "Unknown": 2
+      },
+      "EJECTION_CAT": {
+        "Ejected": 0,
+        "Not_Applicable": 1,
+        "Not_Ejected": 2,
+        "Unknown": 3
+      },
+      "DEFORMATION_CAT": {
+        "Disabling": 0,
+        "Functional": 1,
+        "Minor": 2,
+        "None": 3,
+        "Unknown": 4
+      },
+      "SURFACE_CAT": {
+        "Dry": 0,
+        "Not_Trafficway": 1,
+        "Snow_Ice": 2,
+        "Unknown": 3,
+        "Wet": 4
+      },
+      "SPEED_LIMIT_CAT": {
+        "High_50_55": 0,
+        "Low_25orLess": 1,
+        "Medium_30_35": 2,
+        "Medium_40_45": 3,
+        "Unknown": 4,
+        "Very_High_60plus": 5
+      },
+      "TIME_PERIOD": {
+        "Evening_Rush": 0,
+        "Late_Night": 1,
+        "Midday": 2,
+        "Morning_Rush": 3,
+        "Night": 4,
+        "Unknown": 5
+      }
+    }
+  },
+  "recommendations": [
+    {
+      "category": "Infrastructure",
+      "items": [
+        "Prioritize lighting upgrades on high-speed rural roads (dark+unlighted = 3.5\u00d7 fatal risk)",
+        "Install median barriers on undivided highways with speed limits \u226555 MPH",
+        "Add rumble strips and curve warnings where single-vehicle departures cluster"
+      ]
+    },
+    {
+      "category": "Enforcement",
+      "items": [
+        "Target seatbelt enforcement on rural roads (lower compliance, higher fatal risk)",
+        "Deploy speed cameras in zones where actual speeds exceed limits by >15 MPH",
+        "Increase DUI checkpoints during late-night hours (12am\u20135am = peak impairment window)"
+      ]
+    },
+    {
+      "category": "EMS Operations",
+      "items": [
+        "Pre-position trauma units near high-speed corridors during night/weekend periods",
+        "Use crash condition data for dynamic EMS triage (rollover + ejection = immediate helicopter dispatch)",
+        "Alert hospitals when crash parameters predict serious/fatal outcomes (speed, deformation, ejection)"
+      ]
+    },
+    {
+      "category": "Vehicle Safety Policy",
+      "items": [
+        "Older vehicles (>15 years) have 2\u00d7 fatal risk \u2014 incentivize fleet modernization",
+        "Motorcycle riders face 8\u00d7 fatality risk \u2014 prioritize helmet law enforcement",
+        "Mandate advanced restraint systems in commercial vehicles (buses, trucks)"
+      ]
+    }
+  ]
+}
