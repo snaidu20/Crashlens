@@ -1463,13 +1463,13 @@ input[type="range"]::-moz-range-thumb {
 <main class="container">
   <nav class="nav-section">
     <div class="nav-tabs" role="tablist">
-      <button class="nav-tab active" role="tab" data-tab="overview">Overview</button>
+      <button class="nav-tab active" role="tab" data-tab="overview">Overview &amp; Methodology</button>
       <button class="nav-tab" role="tab" data-tab="models">Model Performance</button>
       <button class="nav-tab" role="tab" data-tab="risk">Risk Factors</button>
       <button class="nav-tab" role="tab" data-tab="explain">AI Explainability</button>
       <button class="nav-tab" role="tab" data-tab="scenario">Scenario Explorer</button>
       <button class="nav-tab" role="tab" data-tab="recommendations">Recommendations</button>
-      <button class="nav-tab" role="tab" data-tab="methodology">Methodology</button>
+
     </div>
   </nav>
 
@@ -1536,6 +1536,57 @@ input[type="range"]::-moz-range-thumb {
             <div class="gauge-center"><span class="gauge-value" style="color:var(--danger);">0.9%</span><span class="gauge-label-text">Fatal Rate</span></div>
           </div>
           <div style="font-size:var(--text-xs);font-weight:600;color:var(--text-secondary);">Dataset</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== METHODOLOGY (merged into Overview) ===== -->
+    <div class="section-header" style="margin-top:var(--sp-8);">
+      <div class="section-tag"><span class="dot"></span> Pipeline</div>
+      <h2 class="section-title">Reproducible Methodology</h2>
+      <p class="section-desc">A transparent pipeline from raw NHTSA crash data to deployed explainable AI dashboard.</p>
+    </div>
+    <!-- SMOTE / Data Transparency Card -->
+    <div class="glass" style="border-left:4px solid var(--accent);padding:var(--sp-5);margin-bottom:var(--sp-2);">
+      <div style="display:flex;align-items:flex-start;gap:var(--sp-3);">
+        <div style="font-size:1.4rem;line-height:1;">&#x1F4CA;</div>
+        <div>
+          <div style="font-size:var(--text-sm);font-weight:700;color:var(--text-primary);margin-bottom:var(--sp-2);">Data Transparency &mdash; What is Real vs. Synthetic</div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--success);">Source data: 100% real.</strong> All 477,801 person records come directly from NHTSA CRSS public CSV archives (2020&ndash;2023). No records were fabricated or simulated as inputs to this study.
+          </div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6;margin-top:var(--sp-2);">
+            <strong style="color:var(--warning);">SMOTE: training set only.</strong> To address the severe class imbalance (fatal crashes = 0.9%), SMOTE (Synthetic Minority Oversampling Technique) is applied <em>only</em> to the training fold. It interpolates new synthetic training examples between existing real crash records. The validation set (95,894 records) and test set (94,969 records) contain <strong>only real crash records &mdash; never synthetic ones.</strong>
+          </div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6;margin-top:var(--sp-2);">
+            <strong style="color:var(--accent);">All reported metrics are from real data.</strong> Every F1 score, fatal recall, and accuracy figure shown in this dashboard is evaluated on the real hold-out test set exclusively.
+          </div>
+          <div style="display:flex;gap:var(--sp-4);margin-top:var(--sp-3);flex-wrap:wrap;">
+            <div style="font-size:var(--text-xs);color:var(--text-tertiary);">&#x2713; Real training records: <strong style="color:var(--text-secondary);">286,938</strong></div>
+            <div style="font-size:var(--text-xs);color:var(--text-tertiary);">&#x2713; SMOTE synthetic (train only): <strong style="color:var(--text-secondary);">49,204</strong></div>
+            <div style="font-size:var(--text-xs);color:var(--text-tertiary);">&#x2713; Real validation records: <strong style="color:var(--text-secondary);">95,894</strong></div>
+            <div style="font-size:var(--text-xs);color:var(--text-tertiary);">&#x2713; Real test records (metrics): <strong style="color:var(--text-secondary);">94,969</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:var(--sp-3);" id="method-steps"></div>
+
+    <div class="glass chart-card" style="margin-top:var(--sp-4);">
+      <div class="chart-card-head"><span class="chart-title">Technical Stack</span></div>
+      <div class="grid-3" style="gap:var(--sp-4);">
+        <div>
+          <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:var(--sp-2);">Data</div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);">Python, Pandas, NumPy, PyArrow</div>
+        </div>
+        <div>
+          <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:var(--sp-2);">Models</div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);">Scikit-learn, XGBoost, LightGBM, PyTorch</div>
+        </div>
+        <div>
+          <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:var(--sp-2);">Explainability</div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);">SHAP, Chart.js, Vanilla JS</div>
         </div>
       </div>
     </div>
@@ -1709,59 +1760,6 @@ input[type="range"]::-moz-range-thumb {
         </div>
       </div>
       <div class="grid-2" id="rec-grid"></div>
-    </div>
-  </section>
-
-  <!-- ===== METHODOLOGY ===== -->
-  <section class="panel" id="panel-methodology">
-    <div class="section-header">
-      <div class="section-tag"><span class="dot"></span> Pipeline</div>
-      <h2 class="section-title">Reproducible Methodology</h2>
-      <p class="section-desc">A transparent pipeline from raw NHTSA crash data to deployed explainable AI dashboard.</p>
-    </div>
-    <!-- SMOTE / Data Transparency Card -->
-    <div class="glass" style="border-left:4px solid var(--accent);padding:var(--sp-5);margin-bottom:var(--sp-2);">
-      <div style="display:flex;align-items:flex-start;gap:var(--sp-3);">
-        <div style="font-size:1.4rem;line-height:1;">&#x1F4CA;</div>
-        <div>
-          <div style="font-size:var(--text-sm);font-weight:700;color:var(--text-primary);margin-bottom:var(--sp-2);">Data Transparency &mdash; What is Real vs. Synthetic</div>
-          <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6;">
-            <strong style="color:var(--success);">Source data: 100% real.</strong> All 477,801 person records come directly from NHTSA CRSS public CSV archives (2020&ndash;2023). No records were fabricated or simulated as inputs to this study.
-          </div>
-          <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6;margin-top:var(--sp-2);">
-            <strong style="color:var(--warning);">SMOTE: training set only.</strong> To address the severe class imbalance (fatal crashes = 0.9%), SMOTE (Synthetic Minority Oversampling Technique) is applied <em>only</em> to the training fold. It interpolates new synthetic training examples between existing real crash records. The validation set (95,894 records) and test set (94,969 records) contain <strong>only real crash records &mdash; never synthetic ones.</strong>
-          </div>
-          <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6;margin-top:var(--sp-2);">
-            <strong style="color:var(--accent);">All reported metrics are from real data.</strong> Every F1 score, fatal recall, and accuracy figure shown in this dashboard is evaluated on the real hold-out test set exclusively.
-          </div>
-          <div style="display:flex;gap:var(--sp-4);margin-top:var(--sp-3);flex-wrap:wrap;">
-            <div style="font-size:var(--text-xs);color:var(--text-tertiary);">&#x2713; Real training records: <strong style="color:var(--text-secondary);">286,938</strong></div>
-            <div style="font-size:var(--text-xs);color:var(--text-tertiary);">&#x2713; SMOTE synthetic (train only): <strong style="color:var(--text-secondary);">49,204</strong></div>
-            <div style="font-size:var(--text-xs);color:var(--text-tertiary);">&#x2713; Real validation records: <strong style="color:var(--text-secondary);">95,894</strong></div>
-            <div style="font-size:var(--text-xs);color:var(--text-tertiary);">&#x2713; Real test records (metrics): <strong style="color:var(--text-secondary);">94,969</strong></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div style="display:flex;flex-direction:column;gap:var(--sp-3);" id="method-steps"></div>
-
-    <div class="glass chart-card" style="margin-top:var(--sp-4);">
-      <div class="chart-card-head"><span class="chart-title">Technical Stack</span></div>
-      <div class="grid-3" style="gap:var(--sp-4);">
-        <div>
-          <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:var(--sp-2);">Data</div>
-          <div style="font-size:var(--text-sm);color:var(--text-secondary);">Python, Pandas, NumPy, PyArrow</div>
-        </div>
-        <div>
-          <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:var(--sp-2);">Models</div>
-          <div style="font-size:var(--text-sm);color:var(--text-secondary);">Scikit-learn, XGBoost, LightGBM, PyTorch</div>
-        </div>
-        <div>
-          <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:var(--sp-2);">Explainability</div>
-          <div style="font-size:var(--text-sm);color:var(--text-secondary);">SHAP, Chart.js, Vanilla JS</div>
-        </div>
-      </div>
     </div>
   </section>
 
