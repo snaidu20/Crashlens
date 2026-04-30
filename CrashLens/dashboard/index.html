@@ -1504,27 +1504,27 @@ input[type="range"]::-moz-range-thumb {
     <div class="grid-4">
       <div class="glass" style="padding:var(--sp-5);display:flex;align-items:center;justify-content:center;">
         <div class="gauge-container">
-          <div class="gauge" data-gauge="44.9" data-color="var(--accent)">
+          <div class="gauge" data-gauge="47.6" data-color="var(--accent)">
             <svg viewBox="0 0 120 120"><circle class="gauge-bg" cx="60" cy="60" r="50"/><circle class="gauge-fill" cx="60" cy="60" r="50"/></svg>
-            <div class="gauge-center"><span class="gauge-value" style="color:var(--accent);">44.9%</span><span class="gauge-label-text">Bal. Acc.</span></div>
+            <div class="gauge-center"><span class="gauge-value" style="color:var(--accent);">47.6%</span><span class="gauge-label-text">Bal. Acc.</span></div>
           </div>
           <div style="font-size:var(--text-xs);font-weight:600;color:var(--text-secondary);">LightGBM</div>
         </div>
       </div>
       <div class="glass" style="padding:var(--sp-5);display:flex;align-items:center;justify-content:center;">
         <div class="gauge-container">
-          <div class="gauge" data-gauge="42.6" data-color="var(--warning)">
+          <div class="gauge" data-gauge="54.3" data-color="var(--warning)">
             <svg viewBox="0 0 120 120"><circle class="gauge-bg" cx="60" cy="60" r="50"/><circle class="gauge-fill" cx="60" cy="60" r="50"/></svg>
-            <div class="gauge-center"><span class="gauge-value" style="color:var(--warning);">42.6%</span><span class="gauge-label-text">Fatal Sens.</span></div>
+            <div class="gauge-center"><span class="gauge-value" style="color:var(--warning);">54.3%</span><span class="gauge-label-text">Fatal Sens.</span></div>
           </div>
           <div style="font-size:var(--text-xs);font-weight:600;color:var(--text-secondary);">LightGBM</div>
         </div>
       </div>
       <div class="glass" style="padding:var(--sp-5);display:flex;align-items:center;justify-content:center;">
         <div class="gauge-container">
-          <div class="gauge" data-gauge="61.1" data-color="var(--fatal)">
+          <div class="gauge" data-gauge="57.3" data-color="var(--fatal)">
             <svg viewBox="0 0 120 120"><circle class="gauge-bg" cx="60" cy="60" r="50"/><circle class="gauge-fill" cx="60" cy="60" r="50"/></svg>
-            <div class="gauge-center"><span class="gauge-value" style="color:var(--fatal);">61.1%</span><span class="gauge-label-text">Fatal Sens.</span></div>
+            <div class="gauge-center"><span class="gauge-value" style="color:var(--fatal);">57.3%</span><span class="gauge-label-text">Fatal Sens.</span></div>
           </div>
           <div style="font-size:var(--text-xs);font-weight:600;color:var(--text-secondary);">Transformer</div>
         </div>
@@ -1546,7 +1546,7 @@ input[type="range"]::-moz-range-thumb {
     <div class="section-header">
       <div class="section-tag"><span class="dot"></span> Model Comparison</div>
       <h2 class="section-title">Performance Benchmark</h2>
-      <p class="section-desc">Four models were trained: three gradient-boosted tree ensembles and one deep learning transformer. LightGBM achieves the best overall balance, while the FT-Transformer reaches 61.1% fatal sensitivity — detecting 47% more fatal crashes.</p>
+      <p class="section-desc">Four models were trained on real NHTSA CRSS data: three gradient-boosted tree ensembles and one FT-Transformer. LightGBM achieves the best overall balance (54.3% fatal sensitivity, F1-macro 45.0%). The FT-Transformer reaches 57.3% fatal sensitivity from a partially-trained checkpoint (CPU-constrained training). All metrics computed on real hold-out test set.</p>
     </div>
 
     <div class="glass chart-card">
@@ -1719,6 +1719,31 @@ input[type="range"]::-moz-range-thumb {
       <h2 class="section-title">Reproducible Methodology</h2>
       <p class="section-desc">A transparent pipeline from raw NHTSA crash data to deployed explainable AI dashboard.</p>
     </div>
+    <!-- SMOTE / Data Transparency Card -->
+    <div class="glass" style="border-left:4px solid var(--accent);padding:var(--sp-5);margin-bottom:var(--sp-2);">
+      <div style="display:flex;align-items:flex-start;gap:var(--sp-3);">
+        <div style="font-size:1.4rem;line-height:1;">&#x1F4CA;</div>
+        <div>
+          <div style="font-size:var(--text-sm);font-weight:700;color:var(--text-primary);margin-bottom:var(--sp-2);">Data Transparency &mdash; What is Real vs. Synthetic</div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6;">
+            <strong style="color:var(--success);">Source data: 100% real.</strong> All 477,801 person records come directly from NHTSA CRSS public CSV archives (2020&ndash;2023). No records were fabricated or simulated as inputs to this study.
+          </div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6;margin-top:var(--sp-2);">
+            <strong style="color:var(--warning);">SMOTE: training set only.</strong> To address the severe class imbalance (fatal crashes = 0.9%), SMOTE (Synthetic Minority Oversampling Technique) is applied <em>only</em> to the training fold. It interpolates new synthetic training examples between existing real crash records. The validation set (95,894 records) and test set (94,969 records) contain <strong>only real crash records &mdash; never synthetic ones.</strong>
+          </div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6;margin-top:var(--sp-2);">
+            <strong style="color:var(--accent);">All reported metrics are from real data.</strong> Every F1 score, fatal recall, and accuracy figure shown in this dashboard is evaluated on the real hold-out test set exclusively.
+          </div>
+          <div style="display:flex;gap:var(--sp-4);margin-top:var(--sp-3);flex-wrap:wrap;">
+            <div style="font-size:var(--text-xs);color:var(--text-tertiary);">&#x2713; Real training records: <strong style="color:var(--text-secondary);">286,938</strong></div>
+            <div style="font-size:var(--text-xs);color:var(--text-tertiary);">&#x2713; SMOTE synthetic (train only): <strong style="color:var(--text-secondary);">49,204</strong></div>
+            <div style="font-size:var(--text-xs);color:var(--text-tertiary);">&#x2713; Real validation records: <strong style="color:var(--text-secondary);">95,894</strong></div>
+            <div style="font-size:var(--text-xs);color:var(--text-tertiary);">&#x2713; Real test records (metrics): <strong style="color:var(--text-secondary);">94,969</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div style="display:flex;flex-direction:column;gap:var(--sp-3);" id="method-steps"></div>
 
     <div class="glass chart-card" style="margin-top:var(--sp-4);">
@@ -1771,10 +1796,10 @@ const D = {
     { value: '$340B/yr', label: 'Economic Cost', detail: 'NHTSA total estimate', icon: '\uD83D\uDCB0', color: '#00796B', colorEnd: '#00838F', bg: 'rgba(0,155,125,0.08)' }
   ],
   models: {
-    'Random Forest':  { acc: 0.7173, bal: 0.4251, f1: 0.4186, fatal: 0.3730, time: 76.4 },
-    'XGBoost':        { acc: 0.7104, bal: 0.4426, f1: 0.4346, fatal: 0.3696, time: 88.1 },
-    'LightGBM':       { acc: 0.7094, bal: 0.4494, f1: 0.4300, fatal: 0.4263, time: 53.7 },
-    'FT-Transformer': { acc: 0.3866, bal: 0.4407, f1: 0.3066, fatal: 0.6111, time: 438.7 }
+    'Random Forest':  { acc: 0.7199, bal: 0.4450, f1: 0.4300, fatal: 0.4853, time: 74.3 },
+    'XGBoost':        { acc: 0.7141, bal: 0.4646, f1: 0.4530, fatal: 0.4626, time: 95.9 },
+    'LightGBM':       { acc: 0.7124, bal: 0.4760, f1: 0.4502, fatal: 0.5431, time: 56.2 },
+    'FT-Transformer': { acc: 0.3548, bal: 0.4422, f1: 0.3121, fatal: 0.5726, time: null }
   },
   perClass: {
     'Random Forest':  [0.8678, 0.2297, 0.3246, 0.3279, 0.3429],
@@ -1863,9 +1888,9 @@ const D = {
     ]}
   ],
   methodology: [
-    { n: '1', title: 'Data Collection', desc: 'Downloaded NHTSA CRSS 2020\u20132023 — 6 CSV tables covering 205,874 crashes and 477,801 person records.' },
-    { n: '2', title: 'Feature Engineering', desc: 'Merged tables on CASEID/VEHNO/PER_NO, engineered 37 features. Encoded CRSS special codes as missing.' },
-    { n: '3', title: 'Train/Val/Test Split', desc: 'Group-aware 60/20/20 split by CASEID. Applied SMOTE to training only (Fatal: 0.9% \u2192 9.1%).' },
+    { n: '1', title: 'Data Collection', desc: 'Downloaded NHTSA CRSS 2020\u20132023 — 9 real CSV tables (ACCIDENT, VEHICLE, PERSON, DISTRACT, DRIMPAIR, CRASHRF, MANEUVER, DRIVERRF, VIOLATN) covering 205,874 crashes and 477,801 person records. All source data is public NHTSA records — no fabricated or simulated inputs.' },
+    { n: '2', title: 'Feature Engineering', desc: 'Merged 9 tables on CASENUM/VEH_NO/PER_NO, engineered 44 features. Encoded CRSS special codes as missing.' },
+    { n: '3', title: 'Train/Val/Test Split', desc: 'Group-aware 60/20/20 split by CASENUM (no leakage). SMOTE applied to training fold only — interpolates between real records to oversample fatal class (2,607 real \u2192 30,635 real+synthetic). Val and test sets are 100% real records. All reported metrics computed on real test data.' },
     { n: '4', title: 'Model Training', desc: 'Trained RF, XGBoost, LightGBM and FT-Transformer. Identical feature sets and evaluation protocol.' },
     { n: '5', title: 'Explainability', desc: 'SHAP TreeExplainer on LightGBM for global and per-class feature importance.' },
     { n: '6', title: 'Dashboard', desc: 'Exported model results and SHAP values to JSON. Built interactive dashboard with Chart.js.' }

@@ -88,6 +88,8 @@ CrashLens shifts this to **proactive, condition-based risk assessment** by:
 
 > **Class imbalance challenge:** Fatal crashes represent only 0.9% of records, making detection extremely difficult. This is addressed through SMOTE oversampling and class-weighted loss functions.
 
+> **Data transparency — SMOTE:** The raw input data is entirely real NHTSA CRSS records. SMOTE (Synthetic Minority Oversampling Technique) is applied **only to the training set** to address class imbalance — it interpolates new synthetic samples between existing real fatal/severe crash examples. The validation and test sets used for all reported metrics contain **only real crash records, never synthetic ones**. Every F1 score and fatal recall figure in this project is evaluated on real hold-out data.
+
 ### Feature Groups (44 Total Features)
 
 | Group | Count | Features |
@@ -258,9 +260,12 @@ This is the most complex step — it joins 9 tables and engineers 44 meaningful 
 | Test | 94,969 | 882 (0.9%) |
 
 **Class Balancing (Training Set Only):**
-- **SMOTE** (Synthetic Minority Oversampling) applied to training data
-- Fatal class upsampled: 2,607 → 30,635 (0.9% → 9.1%)
-- Total training records after SMOTE: 336,142
+
+> **Important:** SMOTE synthetic samples are generated **exclusively within the training fold**. Validation (95,894) and test (94,969) records are untouched real CRSS data. All reported model metrics are computed on the real test set only.
+
+- **SMOTE** (Synthetic Minority Oversampling) — creates new training examples by interpolating feature vectors between existing real minority-class records
+- Fatal class upsampled: 2,607 real records → 30,635 (real + synthetic); 0.9% → 9.1% of training set
+- Total training records after SMOTE: 336,142 (286,938 real + 49,204 synthetic)
 
 | Class | Before SMOTE | After SMOTE |
 |-------|-------------|-------------|
