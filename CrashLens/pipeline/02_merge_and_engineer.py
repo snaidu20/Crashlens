@@ -51,24 +51,24 @@ print(f"  After MV occupant filter: {len(person):,}")
 # and duplicate fields that appear across tables
 
 # -- Person features (unit of analysis) --
+# Removed unused: SEAT_POS, HELM_USE, ALC_STATUS
 person_cols = [
     "CASENUM", "VEH_NO", "PER_NO", "DATA_YEAR", "WEIGHT",
     # Target
     "INJ_SEV",
     # Demographics
     "AGE", "SEX",
-    # Person type & position
-    "PER_TYP", "SEAT_POS",
+    # Person type
+    "PER_TYP",
     # Safety equipment
-    "REST_USE", "HELM_USE", "AIR_BAG", "EJECTION",
+    "REST_USE", "AIR_BAG", "EJECTION",
     # Substance involvement
     "DRINKING",
-    # Additional
-    "ALC_STATUS",
 ]
 person_sel = person[person_cols].copy()
 
 # -- Accident features (crash-level) --
+# Removed unused: HARM_EV, RELJCT2, REL_ROAD, PEDS, PERMVIT, PERNOTMVIT, ALCOHOL, SCH_BUS
 accident_cols = [
     "CASENUM", "DATA_YEAR",
     # Location/environment
@@ -76,41 +76,30 @@ accident_cols = [
     # Time
     "MONTH", "DAY_WEEK", "HOUR",
     # Crash characteristics
-    "HARM_EV", "MAN_COLL",
+    "MAN_COLL",
     # Junction/road
-    "RELJCT2", "TYP_INT", "REL_ROAD",
+    "TYP_INT",
     # Conditions
     "LGT_COND", "WEATHER", "WRK_ZONE",
     # Crash severity summary
-    "VE_TOTAL", "PEDS", "PERMVIT", "PERNOTMVIT",
-    # Alcohol at crash level
-    "ALCOHOL",
-    # School bus
-    "SCH_BUS",
+    "VE_TOTAL",
 ]
 accident_sel = accident[accident_cols].copy()
 
 # -- Vehicle features --
+# Removed unused: IMPACT1, UNDEROVERRIDE, VTRAFWAY, VALIGN, VPROFILE,
+#   P_CRASH1, P_CRASH2, UNITTYPE, BUS_USE, SPEC_USE, EMER_USE, TOWED, FIRE_EXP
 vehicle_cols = [
     "CASENUM", "VEH_NO", "DATA_YEAR",
     # Vehicle characteristics
     "BODY_TYP", "MOD_YEAR", "NUMOCCS",
     # Crash dynamics
     "TRAV_SP", "SPEEDREL", "ROLLOVER", "DEFORMED",
-    "IMPACT1", "UNDEROVERRIDE",
     # Road characteristics (vehicle-level)
-    "VTRAFWAY", "VNUM_LAN", "VSPD_LIM",
-    "VALIGN", "VPROFILE", "VSURCOND", "VTRAFCON",
-    # Pre-crash
-    "P_CRASH1", "P_CRASH2",
-    # Vehicle type
-    "UNITTYPE", "HIT_RUN",
-    # Special use
-    "BUS_USE", "SPEC_USE", "EMER_USE",
-    # Towing
-    "TOWED",
-    # Fire
-    "FIRE_EXP",
+    "VNUM_LAN", "VSPD_LIM",
+    "VSURCOND", "VTRAFCON",
+    # Driver behavior
+    "HIT_RUN",
 ]
 vehicle_sel = vehicle[vehicle_cols].copy()
 
@@ -139,9 +128,9 @@ print("\nAggregating supplementary tables...")
 # -- Distraction: aggregate to vehicle level (any distraction flag) --
 distract = load_table("distract")
 # DRDISTRACT: 0 = Not Distracted, other values = types of distraction
+# NUM_DISTRACTIONS computed but never used as a model feature — only DISTRACTED binary is kept
 dist_agg = distract.groupby(["CASENUM", "VEH_NO", "DATA_YEAR"]).agg(
     DISTRACTED=("DRDISTRACT", lambda x: int((x != 0).any())),
-    NUM_DISTRACTIONS=("DRDISTRACT", lambda x: int((x != 0).sum()))
 ).reset_index()
 merged = merged.merge(dist_agg, on=["CASENUM", "VEH_NO", "DATA_YEAR"], how="left")
 print(f"  +distraction: {len(merged):,}")
@@ -408,7 +397,6 @@ merged["DRINKING_FLAG"] = merged["DRINKING"].apply(
 # -- Driver impaired (fill NaN from non-driver passengers) --
 merged["DRIVER_IMPAIRED"] = merged["DRIVER_IMPAIRED"].fillna(0).astype(int)
 merged["DISTRACTED"] = merged["DISTRACTED"].fillna(0).astype(int)
-merged["NUM_DISTRACTIONS"] = merged["NUM_DISTRACTIONS"].fillna(0).astype(int)
 merged["NUM_CRASH_FACTORS"] = merged["NUM_CRASH_FACTORS"].fillna(0).astype(int)
 
 # -- Hit and run binary (from vehicle table) --
@@ -483,7 +471,8 @@ print(f"\nNew features added (vs. previous run):")
 for col in ["HAS_PRE_CRASH_MANEUVER", "HAS_DRIVER_RF", "NUM_DRIVER_RF",
             "HAS_VIOLATION", "NUM_VIOLATIONS", "HIT_RUN_FLAG", "VTRAFCON_CAT"]:
     if col in merged.columns:
-        if merged[col].dtype == object or str(merged[col].dtype) in ['string', 'category']:
+        is_str = pd.api.types.is_string_dtype(merged[col]) or pd.api.types.is_object_dtype(merged[col])
+        if is_str:
             print(f"  {col}: {merged[col].value_counts().to_dict()}")
         else:
             print(f"  {col}: mean={merged[col].mean():.3f}, sum={int(merged[col].sum())}")

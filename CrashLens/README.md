@@ -221,7 +221,15 @@ This is the most complex step — it joins 9 tables and engineers 44 meaningful 
 | Multiple tables | `DISTRACTED`, `DRIVER_IMPAIRED`, `DRINKING_FLAG` | Binary flags from supplementary tables |
 | `VEHICLE` | `ROLLOVER_FLAG` | Binary: derived from ROLLOVER field in vehicle table (VSOE not used) |
 
-**Output:** `data/processed/crashlens_merged.parquet` — 477,801 rows × 50+ columns
+**Column Selection (cleanup — v2):** Step 2 loads only columns that are actually used in feature engineering or as join keys. 24 raw CRSS columns that were loaded in earlier versions but never contributed to any of the 44 model features have been removed:
+- **Person table:** `SEAT_POS`, `HELM_USE`, `ALC_STATUS`
+- **Accident table:** `HARM_EV`, `RELJCT2`, `REL_ROAD`, `PEDS`, `PERMVIT`, `PERNOTMVIT`, `ALCOHOL`, `SCH_BUS`
+- **Vehicle table:** `IMPACT1`, `UNDEROVERRIDE`, `VTRAFWAY`, `VALIGN`, `VPROFILE`, `P_CRASH1`, `P_CRASH2`, `UNITTYPE`, `BUS_USE`, `SPEC_USE`, `EMER_USE`, `TOWED`, `FIRE_EXP`
+- **Distract aggregation:** `NUM_DISTRACTIONS` (computed but never used — only `DISTRACTED` binary is kept)
+
+The 44 model features are completely unchanged. This cleanup makes the pipeline more transparent: every column loaded in Step 2 is traceable to a model feature.
+
+**Output:** `data/processed/crashlens_merged.parquet` — 477,801 rows × 73 columns (only used columns)
 
 ---
 
