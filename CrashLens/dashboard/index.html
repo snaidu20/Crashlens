@@ -1466,8 +1466,7 @@ input[type="range"]::-moz-range-thumb {
       <button class="nav-tab active" role="tab" data-tab="overview">Overview &amp; Methodology</button>
       <button class="nav-tab" role="tab" data-tab="models">Model Performance</button>
       <button class="nav-tab" role="tab" data-tab="risk">Risk Factors</button>
-      <button class="nav-tab" role="tab" data-tab="explain">AI Explainability</button>
-      <button class="nav-tab" role="tab" data-tab="scenario">Scenario Explorer</button>
+      <button class="nav-tab" role="tab" data-tab="datasets">Datasets</button>
       <button class="nav-tab" role="tab" data-tab="recommendations">Recommendations</button>
 
     </div>
@@ -1662,58 +1661,58 @@ input[type="range"]::-moz-range-thumb {
     </div>
   </section>
 
-  <!-- ===== AI EXPLAINABILITY ===== -->
-  <section class="panel" id="panel-explain">
+  <!-- ===== DATASETS ===== -->
+  <section class="panel" id="panel-datasets">
     <div class="section-header">
-      <div class="section-tag"><span class="dot"></span> AI Insights</div>
-      <h2 class="section-title">Why Are These Crashes Fatal?</h2>
-      <p class="section-desc">Natural language explanations of the model's findings, translating complex SHAP feature interactions into actionable safety intelligence.</p>
+      <div class="section-tag"><span class="dot"></span> Data Sources</div>
+      <h2 class="section-title">Datasets Used</h2>
+      <p class="section-desc">All analysis is based on public NHTSA crash data — no proprietary, simulated, or fabricated inputs. Every table below is a real government CSV file downloaded directly from NHTSA.</p>
     </div>
 
-    <div class="glass-static ai-panel">
-      <div class="ai-panel-header">
-        <div class="ai-badge"><span class="pulse"></span> CrashLens AI Engine</div>
-        <span style="font-size:var(--text-2xs);color:var(--text-tertiary);">Powered by SHAP TreeExplainer on LightGBM</span>
+    <!-- Primary Source Card -->
+    <div class="glass" style="border-left:4px solid var(--accent);padding:var(--sp-5);margin-bottom:var(--sp-4);">
+      <div style="display:flex;align-items:flex-start;gap:var(--sp-4);flex-wrap:wrap;">
+        <div style="flex:1;min-width:260px;">
+          <div style="font-size:var(--text-xs);font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:var(--sp-2);">Primary Dataset</div>
+          <div style="font-size:var(--text-lg);font-weight:700;color:var(--text-primary);margin-bottom:var(--sp-2);">NHTSA Crash Report Sampling System (CRSS)</div>
+          <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.6;margin-bottom:var(--sp-3);">CRSS is a nationally representative probability sample of police-reported motor vehicle crashes in the United States. It uses a stratified multi-stage probability sampling design to represent the full range of crash severities — from property-damage-only through fatal. Data are collected annually by NHTSA from approximately 60 primary sampling units across the country.</div>
+          <a href="https://www.nhtsa.gov/file-downloads?p=nhtsa/downloads/CRSS/" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:var(--sp-2);font-size:var(--text-sm);font-weight:600;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:var(--r-md);padding:var(--sp-2) var(--sp-3);">&#x1F517; NHTSA CRSS Download Portal</a>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:var(--sp-3);min-width:200px;">
+          <div class="glass" style="padding:var(--sp-3) var(--sp-4);">
+            <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Study Period</div>
+            <div style="font-size:var(--text-md);font-weight:700;color:var(--text-primary);">2020 &ndash; 2023</div>
+          </div>
+          <div class="glass" style="padding:var(--sp-3) var(--sp-4);">
+            <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Person Records</div>
+            <div style="font-size:var(--text-md);font-weight:700;color:var(--text-primary);">477,801</div>
+          </div>
+          <div class="glass" style="padding:var(--sp-3) var(--sp-4);">
+            <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Unique Crashes</div>
+            <div style="font-size:var(--text-md);font-weight:700;color:var(--text-primary);">205,874</div>
+          </div>
+          <div class="glass" style="padding:var(--sp-3) var(--sp-4);">
+            <div style="font-size:var(--text-2xs);color:var(--text-tertiary);font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Access</div>
+            <div style="font-size:var(--text-sm);font-weight:600;color:var(--success);">Public Download</div>
+          </div>
+        </div>
       </div>
-
-      <div class="grid-2" style="gap:var(--sp-4);" id="ai-cards"></div>
     </div>
 
-    <div class="glass chart-card" style="margin-top:var(--sp-4);">
-      <div class="chart-card-head">
-        <span class="chart-title">Feature Impact Direction on Fatal Risk</span>
-        <span class="chart-badge">SHAP Direction</span>
-      </div>
-      <div id="impact-bars"></div>
-    </div>
-  </section>
-
-  <!-- ===== SCENARIO EXPLORER ===== -->
-  <section class="panel" id="panel-scenario">
-    <div class="section-header">
-      <div class="section-tag"><span class="dot"></span> Interactive</div>
-      <h2 class="section-title">What-If Scenario Explorer</h2>
-      <p class="section-desc">Adjust crash conditions to see how predicted injury severity shifts in real time. This uses a risk model derived from the trained LightGBM's SHAP importance weights.</p>
-    </div>
-
+    <!-- 9-Table breakdown -->
     <div class="glass chart-card">
       <div class="chart-card-head">
-        <span class="chart-title">Crash Conditions</span>
-        <span class="chart-badge">Adjust Parameters</span>
+        <span class="chart-title">9 CSV Tables Used in Analysis</span>
+        <span class="chart-badge">All from CRSS Public Use Files</span>
       </div>
-      <div class="scenario-grid" id="scenario-form"></div>
+      <div class="model-table-wrap"><table class="model-table" id="datasets-table"></table></div>
     </div>
 
-    <div class="grid-2" style="margin-top: var(--sp-2);">
-      <div class="glass chart-card">
-        <div class="chart-card-head"><span class="chart-title">Predicted Severity</span></div>
-        <div class="severity-bars" id="severity-bars"></div>
-      </div>
-      <div class="glass risk-meter" id="risk-meter">
-        <div class="risk-level-tag" id="risk-tag">Low Risk</div>
-        <div class="risk-pct" id="risk-pct">0.5%</div>
-        <div style="font-size:var(--text-sm);font-weight:600;color:var(--text-secondary);margin-bottom:var(--sp-2);">Fatal Probability</div>
-        <div class="risk-sub" id="risk-sub">Serious + Fatal: 4.5%</div>
+    <!-- Feature engineering note -->
+    <div class="glass" style="padding:var(--sp-5);margin-top:var(--sp-2);">
+      <div style="font-size:var(--text-sm);font-weight:700;color:var(--text-primary);margin-bottom:var(--sp-3);">From Raw Tables to 44 Model Features</div>
+      <div style="font-size:var(--text-sm);color:var(--text-secondary);line-height:1.7;">
+        The 9 tables above are joined on <code style="font-family:monospace;background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;">CASENUM / VEH_NO / PER_NO / DATA_YEAR</code>. Supplementary tables (DISTRACT, DRIMPAIR, CRASHRF, MANEUVER, DRIVERRF, VIOLATN) are aggregated to binary flags or counts per vehicle before joining. Raw CRSS coding values (98 = Not Reported, 99 = Unknown, 998/999 = coded unknowns) are treated as missing and imputed in Step 3. Only columns that contribute to the 44 model features are loaded — unused raw columns were removed in a cleanup pass for full pipeline transparency.
       </div>
     </div>
   </section>
@@ -1978,6 +1977,8 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.classList.add('active');
     tab.setAttribute('aria-selected', 'true');
     document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    // Resize charts after panel becomes visible (fixes Chart.js on hidden panels)
+    requestAnimationFrame(() => { Object.values(charts).forEach(ch => { if (ch?.resize) ch.resize(); }); });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 });
@@ -2142,7 +2143,7 @@ charts.yearly = new Chart(document.getElementById('chart-yearly'), {
   Object.entries(D.models).forEach(([name, d]) => {
     html += '<tr><td class="model-name">' + name + '</td>';
     metrics.forEach(m => {
-      const v = m === 'time' ? d[m].toFixed(1) : (d[m] * 100).toFixed(1) + '%';
+      const v = m === 'time' ? (d[m] == null ? '—' : d[m].toFixed(1)) : (d[m] * 100).toFixed(1) + '%';
       html += `<td class="${best[m] === name ? 'best' : ''}">${v}</td>`;
     });
     html += '</tr>';
@@ -2301,172 +2302,32 @@ charts.fatalShap = makeShap('chart-fatal-shap', D.fatalShap, '#9C27B0');
 if (typeof applyChartTheme === 'function') applyChartTheme();
 
 // ================================================================
-// AI EXPLAINABILITY CARDS
+// DATASETS TABLE
 // ================================================================
 (function() {
-  const grid = document.getElementById('ai-cards');
-  D.findings.forEach((f, i) => {
-    const card = document.createElement('div');
-    card.className = 'explain-card fade-in';
-    card.style.animationDelay = (i * 100) + 'ms';
-    card.innerHTML = `
-      <div class="explain-icon" style="background:${f.bg};color:${f.color};">${f.icon}</div>
-      <div class="explain-title">${f.title}</div>
-      <div class="explain-text">${f.text}</div>
-      <div class="explain-nlp">${f.nlp}</div>
-    `;
-    grid.appendChild(card);
-  });
-})();
-
-// Impact direction bars
-(function() {
-  const el = document.getElementById('impact-bars');
-  el.style.cssText = 'display:flex;flex-direction:column;gap:var(--sp-4);';
-  D.impactBars.forEach(b => {
-    const maxVal = 0.06;
-    const pct = Math.min((b.val / maxVal) * 100, 100);
-    const color = b.dir === 'increase' ? 'var(--danger)' : 'var(--success)';
-    const arrow = b.dir === 'increase' ? '\u2191' : '\u2193';
-    const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:var(--sp-4);';
-    row.innerHTML = `
-      <div style="width:120px;flex-shrink:0;font-size:var(--text-sm);font-weight:500;color:var(--text-secondary);text-align:right;">${b.name}</div>
-      <div style="flex:1;height:32px;background:rgba(255,255,255,0.03);border-radius:var(--r-md);overflow:hidden;position:relative;">
-        <div style="height:100%;width:${pct}%;background:linear-gradient(90deg, ${color}33, ${color}cc);border-radius:var(--r-md);display:flex;align-items:center;padding-left:var(--sp-3);transition:width 1s var(--ease-out);">
-          <span style="font-size:var(--text-xs);font-weight:600;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,0.5);">${arrow} ${(b.val * 100).toFixed(2)}</span>
-        </div>
-      </div>
-      <div style="width:200px;flex-shrink:0;font-size:var(--text-xs);color:var(--text-tertiary);">${b.text}</div>
-    `;
-    el.appendChild(row);
-  });
-})();
-
-// ================================================================
-// SCENARIO EXPLORER
-// ================================================================
-(function() {
-  const form = document.getElementById('scenario-form');
-  const bars = document.getElementById('severity-bars');
-  const riskMeter = document.getElementById('risk-meter');
-  const riskTag = document.getElementById('risk-tag');
-  const riskPct = document.getElementById('risk-pct');
-  const riskSub = document.getElementById('risk-sub');
-
-  const sevNames = ['No Injury', 'Possible', 'Minor', 'Serious', 'Fatal'];
-  const sevColors = ['#2E7D32', '#E6960A', '#E67E22', '#D32F2F', '#9C27B0'];
-
-  const fields = [
-    { id: 'age', label: 'Occupant Age', type: 'range', min: 16, max: 85, value: 35 },
-    { id: 'speed', label: 'Travel Speed (MPH)', type: 'range', min: 0, max: 100, value: 35 },
-    { id: 'vtype', label: 'Vehicle Type', type: 'select', opts: ['Passenger Car', 'SUV/Crossover', 'Pickup Truck', 'Motorcycle', 'Van/Minivan', 'Truck/Bus'] },
-    { id: 'collision', label: 'Collision Type', type: 'select', opts: ['Rear End', 'Angle', 'Sideswipe', 'Head On', 'Non-Collision', 'Other'] },
-    { id: 'restraint', label: 'Restraint Use', type: 'select', opts: ['Seatbelt', 'None', 'Child Restraint', 'Partial'] },
-    { id: 'lighting', label: 'Lighting', type: 'select', opts: ['Daylight', 'Dark (Lighted)', 'Dark (Unlighted)', 'Dawn/Dusk'] },
-    { id: 'weather', label: 'Weather', type: 'select', opts: ['Clear', 'Rain', 'Cloudy', 'Snow/Sleet', 'Fog', 'Severe'] },
-    { id: 'splimit', label: 'Speed Limit', type: 'select', opts: ['Low (\u226425)', 'Medium (30-35)', 'Medium (40-45)', 'High (50-55)', 'Very High (60+)'] },
-    { id: 'rollover', label: 'Rollover', type: 'toggle', opts: ['No', 'Yes'] },
-    { id: 'alcohol', label: 'Alcohol', type: 'toggle', opts: ['No', 'Yes'] }
+  const table = document.getElementById('datasets-table');
+  const rows = [
+    { file: 'accident.csv',  level: 'Crash',   records: '205,874',              features: 'REGION, URBANICITY, MONTH, DAY_WEEK, HOUR, MAN_COLL, TYP_INT, LGT_COND, WEATHER, WRK_ZONE, VE_TOTAL' },
+    { file: 'vehicle.csv',   level: 'Vehicle', records: '372,720',              features: 'BODY_TYP, MOD_YEAR, NUMOCCS, TRAV_SP, SPEEDREL, ROLLOVER, DEFORMED, VNUM_LAN, VSPD_LIM, VSURCOND, VTRAFCON, HIT_RUN' },
+    { file: 'person.csv',    level: 'Person',  records: '477,801 (MV occupants, filtered from 500,080)', features: 'AGE, SEX, PER_TYP, REST_USE, AIR_BAG, EJECTION, DRINKING &rarr; INJ_SEV (target)' },
+    { file: 'distract.csv',  level: 'Vehicle', records: 'supplementary',        features: 'DRDISTRACT → DISTRACTED (binary flag)' },
+    { file: 'drimpair.csv',  level: 'Vehicle', records: 'supplementary',        features: 'DRIMPAIR → DRIVER_IMPAIRED (binary flag)' },
+    { file: 'crashrf.csv',   level: 'Crash',   records: 'supplementary',        features: 'CRASHRF → NUM_CRASH_FACTORS (count)' },
+    { file: 'maneuver.csv',  level: 'Vehicle', records: 'supplementary',        features: 'MANEUVER → HAS_PRE_CRASH_MANEUVER (binary flag)' },
+    { file: 'driverrf.csv',  level: 'Vehicle', records: 'supplementary',        features: 'DRIVERRF → HAS_DRIVER_RF (binary), NUM_DRIVER_RF (count)' },
+    { file: 'violatn.csv',   level: 'Vehicle', records: 'supplementary',        features: 'VIOLATION → HAS_VIOLATION (binary), NUM_VIOLATIONS (count)' },
   ];
-
-  fields.forEach(f => {
-    const g = document.createElement('div');
-    g.className = 'form-group';
-    if (f.type === 'range') {
-      g.innerHTML = `<label>${f.label}</label><div class="range-row"><input type="range" id="in-${f.id}" min="${f.min}" max="${f.max}" value="${f.value}"><span class="range-display" id="rv-${f.id}">${f.value}</span></div>`;
-    } else if (f.type === 'select') {
-      g.innerHTML = `<label>${f.label}</label><select id="in-${f.id}">${f.opts.map((o,i) => `<option value="${i}">${o}</option>`).join('')}</select>`;
-    } else if (f.type === 'toggle') {
-      g.innerHTML = `<label>${f.label}</label><div class="toggle-group" id="in-${f.id}">${f.opts.map((o,i) => `<button class="toggle-btn${i===0?' on':''}" data-v="${i}">${o}</button>`).join('')}</div>`;
-    }
-    form.appendChild(g);
+  const levelColors = { Crash: 'var(--accent)', Vehicle: 'var(--warning)', Person: 'var(--danger)' };
+  let html = '<thead><tr><th>File</th><th>Join Level</th><th>Records Used</th><th>Columns → Features</th></tr></thead><tbody>';
+  rows.forEach(r => {
+    html += `<tr>
+      <td style="font-family:monospace;font-size:var(--text-sm);font-weight:600;color:var(--text-primary);">${r.file}</td>
+      <td><span style="font-size:var(--text-xs);font-weight:700;color:${levelColors[r.level] || 'var(--text-secondary)'};background:${(levelColors[r.level] || '#888')}22;padding:2px 8px;border-radius:20px;">${r.level}</span></td>
+      <td style="font-size:var(--text-sm);color:var(--text-secondary);">${r.records}</td>
+      <td style="font-size:var(--text-xs);color:var(--text-tertiary);line-height:1.5;">${r.features}</td>
+    </tr>`;
   });
-
-  // Events
-  form.querySelectorAll('.toggle-group').forEach(g => {
-    g.querySelectorAll('.toggle-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        g.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('on'));
-        btn.classList.add('on');
-        compute();
-      });
-    });
-  });
-  form.querySelectorAll('input[type="range"]').forEach(r => {
-    r.addEventListener('input', () => {
-      document.getElementById('rv-' + r.id.replace('in-', '')).textContent = r.value;
-      compute();
-    });
-  });
-  form.querySelectorAll('select').forEach(s => s.addEventListener('change', compute));
-
-  // Severity bars
-  sevNames.forEach((name, i) => {
-    const row = document.createElement('div');
-    row.className = 'sbar-row';
-    row.innerHTML = `<span class="sbar-label">${name}</span><div class="sbar-track"><div class="sbar-fill" id="sb-${i}" style="width:0%;background:linear-gradient(90deg, ${sevColors[i]}55, ${sevColors[i]});"><span class="sbar-pct" id="sp-${i}">0%</span></div></div>`;
-    bars.appendChild(row);
-  });
-
-  function compute() {
-    const age = +document.getElementById('in-age').value;
-    const speed = +document.getElementById('in-speed').value;
-    const vtype = +document.getElementById('in-vtype').value;
-    const collision = +document.getElementById('in-collision').value;
-    const restraint = +document.getElementById('in-restraint').value;
-    const lighting = +document.getElementById('in-lighting').value;
-    const weather = +document.getElementById('in-weather').value;
-    const splimit = +document.getElementById('in-splimit').value;
-    const rollover = +document.getElementById('in-rollover').querySelector('.on').dataset.v;
-    const alcohol = +document.getElementById('in-alcohol').querySelector('.on').dataset.v;
-
-    let probs = [0.71, 0.141, 0.089, 0.051, 0.009];
-    let af = age >= 75 ? 3.2 : age >= 65 ? 2.4 : age >= 55 ? 1.6 : age <= 20 ? 1.2 : 1;
-    let sf = 1 + Math.max(0, (speed - 35)) * 0.025;
-    const vtf = [1, 1, 1, 4.5, 0.9, 1.3][vtype] || 1;
-    const clf = [1, 1.2, 0.7, 3.5, 1.8, 0.8][collision] || 1;
-    const rf = [1, 5, 0.8, 2][restraint] || 1;
-    const lf = [1, 1.5, 2.5, 1.3][lighting] || 1;
-    const wf = [1, 1.2, 1, 1.4, 1.6, 1.5][weather] || 1;
-    const slf = [0.6, 0.8, 1, 1.4, 2][splimit] || 1;
-    const rlf = rollover == 1 ? 4 : 1;
-    const alf = alcohol == 1 ? 2.5 : 1;
-
-    let mult = af * sf * vtf * clf * rf * lf * wf * slf * rlf * alf;
-    let fp = Math.min(0.95, probs[4] * mult);
-    let sp = Math.min(0.95 - fp, probs[3] * Math.sqrt(mult));
-    let mp = Math.min(0.95 - fp - sp, probs[2] * Math.pow(mult, 0.3));
-    let pp = Math.min(0.95 - fp - sp - mp, probs[1] * Math.pow(mult, 0.15));
-    let np = Math.max(0.02, 1 - fp - sp - mp - pp);
-    let total = np + pp + mp + sp + fp;
-    let finals = [np, pp, mp, sp, fp].map(p => (p / total) * 100);
-
-    finals.forEach((p, i) => {
-      const bar = document.getElementById('sb-' + i);
-      const pctEl = document.getElementById('sp-' + i);
-      bar.style.width = Math.max(p, 1) + '%';
-      pctEl.textContent = p >= 1 ? p.toFixed(1) + '%' : '<1%';
-      pctEl.style.display = p < 4 ? 'none' : '';
-    });
-
-    const fPct = finals[4];
-    let level, color, glow;
-    if (fPct < 2) { level = 'Low Risk'; color = 'var(--success)'; glow = 'rgba(46,125,50,0.06)'; }
-    else if (fPct < 8) { level = 'Moderate Risk'; color = 'var(--warning)'; glow = 'rgba(230,150,10,0.06)'; }
-    else if (fPct < 25) { level = 'High Risk'; color = 'var(--danger)'; glow = 'rgba(211,47,47,0.08)'; }
-    else { level = 'Extreme Risk'; color = 'var(--fatal)'; glow = 'rgba(156,39,176,0.08)'; }
-
-    riskTag.textContent = level;
-    riskTag.style.color = color;
-    riskPct.textContent = fPct.toFixed(1) + '% Fatal';
-    riskPct.style.color = color;
-    riskSub.textContent = `Serious + Fatal: ${(finals[3] + finals[4]).toFixed(1)}%`;
-    riskMeter.style.setProperty('--risk-glow', glow);
-    riskMeter.style.borderColor = color.replace('var(--', '').replace(')', '') === 'success' ? 'rgba(105,240,174,0.15)' : color.replace('var(--', '').replace(')', '') === 'danger' ? 'rgba(255,82,82,0.2)' : 'var(--border-default)';
-  }
-
-  compute();
+  table.innerHTML = html + '</tbody>';
 })();
 
 // ================================================================
