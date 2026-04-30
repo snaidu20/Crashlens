@@ -8,8 +8,6 @@
 
 ### [▶ View Live Dashboard Demo](https://snaidu20.github.io/Crashlens/)
 
-![CrashLens Dashboard Preview](dashboard-preview.png)
-
 ---
 
 ## Table of Contents
@@ -74,7 +72,7 @@ CrashLens shifts this to **proactive, condition-based risk assessment** by:
 | **Years** | 2020, 2021, 2022, 2023 |
 | **Total Crash Events** | 205,874 |
 | **Total Person Records** | 477,801 motor vehicle occupants |
-| **Tables Used** | ACCIDENT, VEHICLE, PERSON, DISTRACT, DRIMPAIR, CRASHRF, VSOE |
+| **Tables Used** | ACCIDENT, VEHICLE, PERSON, DISTRACT, DRIMPAIR, CRASHRF, MANEUVER, DRIVERRF, VIOLATN |
 | **File Format** | CSV (Latin-1 encoding) |
 | **Download** | Each year is a separate ZIP archive containing CSV files |
 
@@ -90,13 +88,13 @@ CrashLens shifts this to **proactive, condition-based risk assessment** by:
 
 > **Class imbalance challenge:** Fatal crashes represent only 0.9% of records, making detection extremely difficult. This is addressed through SMOTE oversampling and class-weighted loss functions.
 
-### Feature Groups (37 Total Features)
+### Feature Groups (44 Total Features)
 
 | Group | Count | Features |
 |-------|-------|----------|
-| **Numeric** | 9 | `AGE_CLEAN`, `TRAV_SP_CLEAN` (travel speed MPH), `SPEED_OVER_LIMIT`, `VEHICLE_AGE`, `VE_TOTAL` (vehicles in crash), `NUMOCCS` (occupants), `VSPD_LIM` (posted speed limit), `VNUM_LAN` (lane count), `NUM_CRASH_FACTORS` |
-| **Categorical** | 13 | `BODY_TYPE_CAT` (vehicle type), `LIGHT_CAT` (lighting), `WEATHER_CAT`, `COLLISION_TYPE`, `AGE_GROUP`, `SEX_CLEAN`, `RESTRAINT_CAT`, `AIRBAG_CAT`, `EJECTION_CAT`, `DEFORMATION_CAT`, `SURFACE_CAT`, `SPEED_LIMIT_CAT`, `TIME_PERIOD` |
-| **Binary** | 10 | `IS_WEEKEND`, `IS_DRIVER`, `MULTI_VEHICLE`, `ROLLOVER_FLAG`, `SPEED_RELATED`, `IN_WORK_ZONE`, `AT_JUNCTION`, `DISTRACTED`, `DRIVER_IMPAIRED`, `DRINKING_FLAG` |
+| **Numeric** | 11 | `AGE_CLEAN`, `TRAV_SP_CLEAN` (travel speed MPH), `SPEED_OVER_LIMIT`, `VEHICLE_AGE`, `VE_TOTAL` (vehicles in crash), `NUMOCCS` (occupants), `VSPD_LIM` (posted speed limit), `VNUM_LAN` (lane count), `NUM_CRASH_FACTORS`, `NUM_DRIVER_RF` (driver risk factor count), `NUM_VIOLATIONS` (violation count) |
+| **Categorical** | 14 | `BODY_TYPE_CAT` (vehicle type), `LIGHT_CAT` (lighting), `WEATHER_CAT`, `COLLISION_TYPE`, `AGE_GROUP`, `SEX_CLEAN`, `RESTRAINT_CAT`, `AIRBAG_CAT`, `EJECTION_CAT`, `DEFORMATION_CAT`, `SURFACE_CAT`, `SPEED_LIMIT_CAT`, `TIME_PERIOD`, `VTRAFCON_CAT` (traffic control device) |
+| **Binary** | 14 | `IS_WEEKEND`, `IS_DRIVER`, `MULTI_VEHICLE`, `ROLLOVER_FLAG`, `SPEED_RELATED`, `IN_WORK_ZONE`, `AT_JUNCTION`, `DISTRACTED`, `DRIVER_IMPAIRED`, `DRINKING_FLAG`, `HAS_PRE_CRASH_MANEUVER` (active maneuver), `HAS_DRIVER_RF` (risk factor flag), `HAS_VIOLATION` (violation flag), `HIT_RUN_FLAG` (driver fled scene) |
 | **Ordinal** | 5 | `URBANICITY`, `REGION`, `DAY_WEEK`, `HOUR`, `MONTH` |
 
 ---
@@ -111,7 +109,7 @@ CrashLens/
 │
 ├── pipeline/                         # End-to-end data processing & model training
 │   ├── 01_explore_data.py            # Raw data exploration & statistics
-│   ├── 02_merge_and_engineer.py      # Table merging & feature engineering (37 features)
+│   ├── 02_merge_and_engineer.py      # Table merging & feature engineering (44 features)
 │   ├── 03_clean_and_encode.py        # Missing values, encoding, cleaning
 │   ├── 04_split_and_balance.py       # Group-aware train/val/test split + SMOTE
 │   ├── 05_validate_dataset.py        # 33-check dataset quality validation
@@ -173,14 +171,16 @@ CrashLens/
 
 1. **Download** CRSS CSV archives from [NHTSA](https://www.nhtsa.gov/file-downloads?p=nhtsa/downloads/CRSS/) for years 2020–2023
 2. Place each year's CSV folder into `data/raw/crss_YYYY/CRSSYYYYCSV/`
-3. The script loads **7 core tables** across all 4 years:
+3. The script loads **9 tables** across all 4 years:
    - `ACCIDENT` — crash-level data (time, location, conditions)
-   - `VEHICLE` — vehicle-level data (type, speed, deformation)
+   - `VEHICLE` — vehicle-level data (type, speed, deformation, hit-and-run, traffic control)
    - `PERSON` — person-level data (age, sex, injury severity, restraint)
    - `DISTRACT` — driver distraction factors
    - `DRIMPAIR` — driver impairment factors
    - `CRASHRF` — crash-related contributing factors
-   - `VSOE` — vehicle sequence of events (rollover detection)
+   - `MANEUVER` — pre-crash driver maneuver (evasive action, turning, lane change)
+   - `DRIVERRF` — driver-related risk factors (fatigue, inattention, aggressive driving)
+   - `VIOLATN` — traffic violations at time of crash (speeding, signal violations, etc.)
 4. **Outputs:** Console summary of record counts, target distribution, and missing value patterns
 
 ```
@@ -195,12 +195,12 @@ Fatal injuries (K): 4,379 (0.9%)
 
 **Script:** `pipeline/02_merge_and_engineer.py`
 
-This is the most complex step — it joins 7 tables and engineers 37 meaningful features from raw CRSS codes.
+This is the most complex step — it joins 9 tables and engineers 44 meaningful features from raw CRSS codes.
 
 **Merge Strategy:**
 1. **Crash + Vehicle:** Join `ACCIDENT` and `VEHICLE` on `(CASENUM, DATA_YEAR)` via `VEHNO`
 2. **+ Person:** Join with `PERSON` on `(CASENUM, VEHNO, DATA_YEAR)` via `PER_NO`
-3. **+ Supplementary tables:** Left-join `DISTRACT`, `DRIMPAIR`, `CRASHRF`, `VSOE` — aggregate to binary flags per vehicle/person
+3. **+ Supplementary tables:** Left-join `DISTRACT`, `DRIMPAIR`, `CRASHRF`, `MANEUVER`, `DRIVERRF`, `VIOLATN` — aggregate to binary flags per vehicle/person
 
 **Feature Engineering (key transformations):**
 
@@ -217,7 +217,7 @@ This is the most complex step — it joins 7 tables and engineers 37 meaningful 
 | `MAN_COLL` | `COLLISION_TYPE` | 10+ codes → 7 categories (Rear_End, Angle, Head_On, Sideswipe, etc.) |
 | `DEFORMED` | `DEFORMATION_CAT` | 7 codes → 5 categories (None, Minor, Functional, Disabling, Unknown) |
 | Multiple tables | `DISTRACTED`, `DRIVER_IMPAIRED`, `DRINKING_FLAG` | Binary flags from supplementary tables |
-| `VSOE` | `ROLLOVER_FLAG` | Binary: any rollover event in sequence |
+| `VEHICLE` | `ROLLOVER_FLAG` | Binary: derived from ROLLOVER field in vehicle table (VSOE not used) |
 
 **Output:** `data/processed/crashlens_merged.parquet` — 477,801 rows × 50+ columns
 
@@ -227,7 +227,7 @@ This is the most complex step — it joins 7 tables and engineers 37 meaningful 
 
 **Script:** `pipeline/03_clean_and_encode.py`
 
-1. **Select final 37 model features** from the merged dataset
+1. **Select final 44 model features** from the merged dataset
 2. **Handle CRSS coded unknowns:** Values like 98, 99, 998, 999 → treated as missing
 3. **Missing value strategy:**
    - Numeric: median imputation
@@ -292,7 +292,7 @@ Used in loss functions for all models to further address imbalance.
 Runs **33 automated quality checks** before model training:
 
 - No NaN/Inf values in any split
-- Feature count matches config (37 features)
+- Feature count matches config (44 features)
 - Class counts match between config and actual data
 - No group leakage (no `CASENUM` overlap across splits)
 - Value ranges are reasonable (age 0–120, speed 0–150, etc.)
@@ -362,11 +362,11 @@ Implements the **Feature Tokenizer + Transformer** (FT-Transformer) architecture
 #### Architecture
 
 ```
-Input (37 features)
-  ├── Numeric features (24) → Linear projection → per-feature tokens (32-dim each)
-  └── Categorical features (13) → Learned embeddings → per-feature tokens (32-dim each)
+Input (44 features)
+  ├── Continuous features (30) → Linear projection → per-feature tokens (32-dim each)
+  └── Categorical features (14) → Learned embeddings → per-feature tokens (32-dim each)
           ↓
-  [CLS] token prepended → 38 tokens total
+  [CLS] token prepended → 45 tokens total
           ↓
   Transformer Encoder (2 layers, 4 heads, d_ff=64, dropout=0.2)
           ↓
@@ -465,39 +465,39 @@ Consolidates all results into a single JSON file for the interactive dashboard:
 
 | Model | Accuracy | Balanced Accuracy | F1 Macro | Fatal (K) Sensitivity | Fatal (K) F1 |
 |-------|----------|-------------------|----------|----------------------|-------------|
-| Random Forest | 71.7% | 42.5% | 41.9% | 37.3% | 34.3% |
-| XGBoost | 71.0% | 44.3% | 43.5% | 37.0% | 33.9% |
-| **LightGBM** | **70.9%** | **44.9%** | **43.0%** | **42.6%** | **32.7%** |
-| FT-Transformer | 38.7% | 44.1% | 30.7% | **61.1%** | 25.1% |
+| Random Forest | 72.0% | 44.5% | 43.0% | 48.5% | 40.5% |
+| XGBoost | 71.4% | 46.5% | 45.3% | 46.3% | 40.7% |
+| **LightGBM** | **71.2%** | **47.6%** | **45.0%** | **54.3%** | **40.8%** |
+| FT-Transformer | 35.5% | 44.2% | 31.2% | **57.3%** | 30.8% |
 
 ### Per-Class F1 Scores (Test Set — LightGBM)
 
 | Class | Precision | Recall | F1 Score |
 |-------|-----------|--------|----------|
-| O — No Injury | 0.862 | 0.879 | 0.864 |
-| C — Possible | 0.267 | 0.265 | 0.301 |
-| B — Non-Incapacitating | 0.319 | 0.324 | 0.331 |
-| A — Incapacitating | 0.310 | 0.353 | 0.328 |
-| K — Fatal | 0.262 | 0.426 | 0.327 |
+| O — No Injury | 0.851 | 0.879 | 0.865 |
+| C — Possible | 0.350 | 0.270 | 0.305 |
+| B — Non-Incapacitating | 0.338 | 0.327 | 0.332 |
+| A — Incapacitating | 0.322 | 0.360 | 0.340 |
+| K — Fatal | 0.327 | 0.543 | 0.408 |
 
 ### Confusion Matrix (LightGBM — Test Set)
 
 ```
               Predicted:  O       C       B       A       K
-Actual O             58,886  4,419   2,451   1,138     154
-Actual C              6,950  3,596   1,812   1,030     176
-Actual B              2,563  1,600   2,792   1,418     234
-Actual A                845    690   1,140   1,717     476
-Actual K                 66     43      95     302     376
+Actual O             58,944  4,411   2,503   1,052     138
+Actual C              6,931  3,668   1,803     997     165
+Actual B              2,506  1,657   2,816   1,405     223
+Actual A                817    694   1,145   1,753     459
+Actual K                 51     39      76     237     479
 ```
 
 ---
 
 ## Key Findings
 
-1. **LightGBM achieves the best balance** of overall accuracy (70.9%) and fatal crash detection (42.6% sensitivity) — it's the recommended model for general deployment.
+1. **LightGBM achieves the best balance** of overall accuracy (71.2%) and fatal crash detection (54.3% sensitivity) — it's the recommended model for general deployment.
 
-2. **FT-Transformer detects 61.1% of fatal crashes** — 47% more than LightGBM — by trading overall accuracy. This suggests value in ensemble approaches for safety-critical applications where missing a fatal crash has high cost.
+2. **FT-Transformer detects 57.3% of fatal crashes** — evaluated from a partially-trained checkpoint (CPU constraint limited training to 6 epochs). It trades F1-macro for fatal sensitivity, suggesting value for safety-critical applications where missing a fatal crash has high cost.
 
 3. **Top risk factors identified by SHAP:**
    - **Ejection** from vehicle → >20× fatality risk

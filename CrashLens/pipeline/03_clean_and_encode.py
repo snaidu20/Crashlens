@@ -33,6 +33,8 @@ numeric_features = [
     "VSPD_LIM",           # Posted speed limit (numeric)
     "VNUM_LAN",           # Number of lanes
     "NUM_CRASH_FACTORS",  # Count of crash-related factors
+    "NUM_DRIVER_RF",       # Count of driver risk factor entries
+    "NUM_VIOLATIONS",      # Count of traffic violations charged
 ]
 
 # --- Categorical features (engineered categories) ---
@@ -50,6 +52,7 @@ categorical_features = [
     "SURFACE_CAT",        # Road surface condition
     "SPEED_LIMIT_CAT",    # Speed limit category
     "TIME_PERIOD",        # Time of day
+    "VTRAFCON_CAT",        # Traffic control device at scene
 ]
 
 # --- Binary features ---
@@ -64,6 +67,10 @@ binary_features = [
     "DISTRACTED",         # Driver distracted
     "DRIVER_IMPAIRED",    # Driver impaired
     "DRINKING_FLAG",      # Drinking involved (-1=Unknown)
+    "HAS_PRE_CRASH_MANEUVER",  # Active pre-crash maneuver (turn/lane change/backup)
+    "HAS_DRIVER_RF",      # Driver had coded risk factor
+    "HAS_VIOLATION",      # Driver had a cited traffic violation
+    "HIT_RUN_FLAG",       # Driver fled scene
 ]
 
 # --- Ordinal features (raw CRSS codes with meaningful ordering) ---

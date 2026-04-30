@@ -95,317 +95,317 @@
   "performance": {
     "models": {
       "Random Forest": {
-        "accuracy": 0.717328812559888,
-        "balanced_accuracy": 0.42511282357861135,
-        "f1_macro": 0.41858297740191414,
-        "f1_weighted": 0.6949112799033466,
-        "kappa": 0.3461481965766794,
-        "fatal_sensitivity": 0.373015873015873,
+        "accuracy": 0.7199296612578842,
+        "balanced_accuracy": 0.44500004590385595,
+        "f1_macro": 0.429986611165874,
+        "f1_weighted": 0.6946559096106415,
+        "kappa": 0.34628166421252937,
+        "fatal_sensitivity": 0.4852607709750567,
         "per_class": {
           "O_NoInjury": {
-            "precision": 0.8292679612442077,
-            "recall": 0.9101688342679871,
-            "f1-score": 0.8678370556823596,
+            "precision": 0.8264436093263829,
+            "recall": 0.9151055959909319,
+            "f1-score": 0.8685177190014792,
             "support": 67048.0
           },
           "C_Possible": {
-            "precision": 0.36661819356923575,
-            "recall": 0.16728103804187555,
-            "f1-score": 0.22973725510049106,
+            "precision": 0.3731155778894472,
+            "recall": 0.15327337068711294,
+            "f1-score": 0.21728678929765885,
             "support": 13564.0
           },
           "B_NonIncap": {
-            "precision": 0.3242867084203201,
-            "recall": 0.32485186476124084,
-            "f1-score": 0.32456904057113006,
+            "precision": 0.32413401476433845,
+            "recall": 0.3315905658185198,
+            "f1-score": 0.32781989432575237,
             "support": 8607.0
           },
           "A_Incap": {
-            "precision": 0.3082067968185105,
-            "recall": 0.3502465078060805,
-            "f1-score": 0.3278846153846154,
+            "precision": 0.323046875,
+            "recall": 0.33976992604765816,
+            "f1-score": 0.3311974369243092,
             "support": 4868.0
           },
           "K_Fatal": {
-            "precision": 0.3172613307618129,
-            "recall": 0.373015873015873,
-            "f1-score": 0.34288692027097445,
+            "precision": 0.3476848090982941,
+            "recall": 0.4852607709750567,
+            "f1-score": 0.4051112162801704,
             "support": 882.0
           }
         },
         "confusion_matrix": [
           [
-            61025,
-            2325,
-            2555,
-            1062,
-            81
+            61356,
+            2062,
+            2625,
+            892,
+            113
           ],
           [
-            8240,
-            2269,
-            1973,
+            8411,
+            2079,
+            2039,
+            920,
+            115
+          ],
+          [
+            3237,
+            988,
+            2854,
+            1365,
+            163
+          ],
+          [
+            1149,
+            423,
+            1230,
+            1654,
+            412
+          ],
+          [
+            88,
+            20,
+            57,
+            289,
+            428
+          ]
+        ],
+        "training_time": 74.30587649345398
+      },
+      "XGBoost": {
+        "accuracy": 0.7141382977603218,
+        "balanced_accuracy": 0.464571099864044,
+        "f1_macro": 0.4530499008845309,
+        "f1_weighted": 0.7070008873993496,
+        "kappa": 0.3750194703243138,
+        "fatal_sensitivity": 0.46258503401360546,
+        "per_class": {
+          "O_NoInjury": {
+            "precision": 0.8507884343740091,
+            "recall": 0.8803543729865171,
+            "f1-score": 0.8653189274771671,
+            "support": 67048.0
+          },
+          "C_Possible": {
+            "precision": 0.3542192046556741,
+            "recall": 0.2692421114715423,
+            "f1-score": 0.30593951579123735,
+            "support": 13564.0
+          },
+          "B_NonIncap": {
+            "precision": 0.3385218494177332,
+            "recall": 0.3411176948995004,
+            "f1-score": 0.3398148148148148,
+            "support": 8607.0
+          },
+          "A_Incap": {
+            "precision": 0.3281050519788437,
+            "recall": 0.36955628594905504,
+            "f1-score": 0.347599265771423,
+            "support": 4868.0
+          },
+          "K_Fatal": {
+            "precision": 0.3626666666666667,
+            "recall": 0.46258503401360546,
+            "f1-score": 0.40657698056801195,
+            "support": 882.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            59026,
+            4336,
+            2594,
+            998,
+            94
+          ],
+          [
+            6944,
+            3652,
+            1876,
             984,
-            98
+            108
           ],
           [
-            3143,
-            1108,
-            2796,
-            1422,
+            2545,
+            1576,
+            2936,
+            1395,
+            155
+          ],
+          [
+            812,
+            701,
+            1196,
+            1799,
+            360
+          ],
+          [
+            51,
+            45,
+            71,
+            307,
+            408
+          ]
+        ],
+        "training_time": 95.86479139328003
+      },
+      "LightGBM": {
+        "accuracy": 0.712443007718308,
+        "balanced_accuracy": 0.47598386962815287,
+        "f1_macro": 0.45015997830642157,
+        "f1_weighted": 0.7055736073360099,
+        "kappa": 0.3727155920362418,
+        "fatal_sensitivity": 0.5430839002267573,
+        "per_class": {
+          "O_NoInjury": {
+            "precision": 0.8511891868474635,
+            "recall": 0.8791313685717694,
+            "f1-score": 0.8649346647395028,
+            "support": 67048.0
+          },
+          "C_Possible": {
+            "precision": 0.3503677524118827,
+            "recall": 0.27042170451194336,
+            "f1-score": 0.30524695210751884,
+            "support": 13564.0
+          },
+          "B_NonIncap": {
+            "precision": 0.3375284669783052,
+            "recall": 0.3271755547809922,
+            "f1-score": 0.33227138643067844,
+            "support": 8607.0
+          },
+          "A_Incap": {
+            "precision": 0.32200587803085967,
+            "recall": 0.36010682004930156,
+            "f1-score": 0.3399922420480993,
+            "support": 4868.0
+          },
+          "K_Fatal": {
+            "precision": 0.3271857923497268,
+            "recall": 0.5430839002267573,
+            "f1-score": 0.4083546462063086,
+            "support": 882.0
+          }
+        },
+        "confusion_matrix": [
+          [
+            58944,
+            4411,
+            2503,
+            1052,
             138
           ],
           [
-            1086,
-            463,
-            1223,
-            1705,
-            391
+            6931,
+            3668,
+            1803,
+            997,
+            165
           ],
           [
-            95,
-            24,
-            75,
-            359,
-            329
+            2506,
+            1657,
+            2816,
+            1405,
+            223
+          ],
+          [
+            817,
+            694,
+            1145,
+            1753,
+            459
+          ],
+          [
+            51,
+            39,
+            76,
+            237,
+            479
           ]
         ],
-        "training_time": 76.44782090187073
-      },
-      "XGBoost": {
-        "accuracy": 0.7104107656182543,
-        "balanced_accuracy": 0.44256680447392,
-        "f1_macro": 0.4346041058166808,
-        "f1_weighted": 0.7032376601349969,
-        "kappa": 0.3669967958875858,
-        "fatal_sensitivity": 0.36961451247165533,
-        "per_class": {
-          "O_NoInjury": {
-            "precision": 0.8493845666022888,
-            "recall": 0.8789523923159528,
-            "f1-score": 0.8639155610936011,
-            "support": 67048.0
-          },
-          "C_Possible": {
-            "precision": 0.34809940084471075,
-            "recall": 0.26127985844883517,
-            "f1-score": 0.2985049484101916,
-            "support": 13564.0
-          },
-          "B_NonIncap": {
-            "precision": 0.33275180274482435,
-            "recall": 0.33240385732543276,
-            "f1-score": 0.33257773902935195,
-            "support": 8607.0
-          },
-          "A_Incap": {
-            "precision": 0.3129228100607112,
-            "recall": 0.3705834018077239,
-            "f1-score": 0.33932098184896076,
-            "support": 4868.0
-          },
-          "K_Fatal": {
-            "precision": 0.31255992329817833,
-            "recall": 0.36961451247165533,
-            "f1-score": 0.3387012987012987,
-            "support": 882.0
-          }
-        },
-        "confusion_matrix": [
-          [
-            58932,
-            4332,
-            2583,
-            1108,
-            93
-          ],
-          [
-            6968,
-            3544,
-            1897,
-            1037,
-            118
-          ],
-          [
-            2573,
-            1545,
-            2861,
-            1461,
-            167
-          ],
-          [
-            844,
-            715,
-            1166,
-            1804,
-            339
-          ],
-          [
-            65,
-            45,
-            91,
-            355,
-            326
-          ]
-        ],
-        "training_time": 88.1374101638794
-      },
-      "LightGBM": {
-        "accuracy": 0.7093577904368794,
-        "balanced_accuracy": 0.4493564839996507,
-        "f1_macro": 0.43001424637444774,
-        "f1_weighted": 0.7025237164359841,
-        "kappa": 0.36556590031180125,
-        "fatal_sensitivity": 0.42630385487528344,
-        "per_class": {
-          "O_NoInjury": {
-            "precision": 0.8496032318568749,
-            "recall": 0.8782663166686553,
-            "f1-score": 0.8636970328106895,
-            "support": 67048.0
-          },
-          "C_Possible": {
-            "precision": 0.3475067645921917,
-            "recall": 0.2651135358301386,
-            "f1-score": 0.3007694881231181,
-            "support": 13564.0
-          },
-          "B_NonIncap": {
-            "precision": 0.3367913148371532,
-            "recall": 0.3243871267572906,
-            "f1-score": 0.3304728650056223,
-            "support": 8607.0
-          },
-          "A_Incap": {
-            "precision": 0.3063336306868867,
-            "recall": 0.3527115858668858,
-            "f1-score": 0.3278907667335052,
-            "support": 4868.0
-          },
-          "K_Fatal": {
-            "precision": 0.2655367231638418,
-            "recall": 0.42630385487528344,
-            "f1-score": 0.32724107919930373,
-            "support": 882.0
-          }
-        },
-        "confusion_matrix": [
-          [
-            58886,
-            4419,
-            2451,
-            1138,
-            154
-          ],
-          [
-            6950,
-            3596,
-            1812,
-            1030,
-            176
-          ],
-          [
-            2563,
-            1600,
-            2792,
-            1418,
-            234
-          ],
-          [
-            845,
-            690,
-            1140,
-            1717,
-            476
-          ],
-          [
-            66,
-            43,
-            95,
-            302,
-            376
-          ]
-        ],
-        "training_time": 53.71093130111694
+        "training_time": 56.16321420669556
       },
       "FT-Transformer": {
-        "accuracy": 0.38659983784182206,
-        "balanced_accuracy": 0.4407221236846096,
-        "f1_macro": 0.30662435376786396,
-        "f1_weighted": 0.4474586054960784,
-        "kappa": 0.15122549994143075,
-        "fatal_sensitivity": 0.6111111111111112,
+        "accuracy": 0.35477892786067033,
+        "balanced_accuracy": 0.4422027047152614,
+        "f1_macro": 0.31206148361106384,
+        "f1_weighted": 0.4079270440714499,
+        "kappa": 0.13595482628235267,
+        "fatal_sensitivity": 0.572562358276644,
         "per_class": {
           "O_NoInjury": {
-            "precision": 0.930432186310368,
-            "recall": 0.3718231714592531,
-            "f1-score": 0.53131859934784,
+            "precision": 0.9384377074574021,
+            "recall": 0.31625104402815896,
+            "f1-score": 0.4730765369298216,
             "support": 67048.0
           },
           "C_Possible": {
-            "precision": 0.15984307131848116,
-            "recall": 0.4205249189029785,
-            "f1-score": 0.23163922110093607,
+            "precision": 0.15275293425792066,
+            "recall": 0.45959893836626364,
+            "f1-score": 0.22929655172413793,
             "support": 13564.0
           },
           "B_NonIncap": {
-            "precision": 0.18641817466561764,
-            "recall": 0.44045544324387126,
-            "f1-score": 0.2619631689873199,
+            "precision": 0.1865886165264203,
+            "recall": 0.4147786685256187,
+            "f1-score": 0.25739005046863733,
             "support": 8607.0
           },
           "A_Incap": {
-            "precision": 0.20038910505836577,
-            "recall": 0.359695973705834,
-            "f1-score": 0.2573864471556666,
+            "precision": 0.21730462519936203,
+            "recall": 0.447822514379622,
+            "f1-score": 0.29261744966442954,
             "support": 4868.0
           },
           "K_Fatal": {
-            "precision": 0.15778688524590165,
-            "recall": 0.6111111111111112,
-            "f1-score": 0.250814332247557,
+            "precision": 0.21059216013344453,
+            "recall": 0.572562358276644,
+            "f1-score": 0.3079268292682927,
             "support": 882.0
           }
         },
         "confusion_matrix": [
           [
-            24930,
-            27724,
-            10964,
-            2789,
+            21204,
+            32121,
+            10216,
+            3018,
+            489
+          ],
+          [
+            1042,
+            6234,
+            3857,
+            2098,
+            333
+          ],
+          [
+            287,
+            1852,
+            3570,
+            2468,
+            430
+          ],
+          [
+            60,
+            570,
+            1417,
+            2180,
             641
           ],
           [
-            1413,
-            5704,
-            4059,
-            1879,
-            509
-          ],
-          [
-            365,
-            1663,
-            3791,
-            2090,
-            698
-          ],
-          [
-            79,
-            565,
-            1444,
-            1751,
-            1029
-          ],
-          [
-            7,
-            29,
-            78,
-            229,
-            539
+            2,
+            34,
+            73,
+            268,
+            505
           ]
         ],
-        "training_time": 438.7080101966858,
-        "n_params": 42789
+        "training_time": null,
+        "n_params": 53797
       }
     },
     "target_labels": [
@@ -438,108 +438,108 @@
       {
         "feature": "VE_TOTAL",
         "display_name": "Total Vehicles in Crash",
-        "importance": 0.12266242577674381
+        "importance": 0.12460710209483918
       },
       {
         "feature": "AGE_CLEAN",
         "display_name": "Person Age",
-        "importance": 0.09443407909771824
+        "importance": 0.08738086017207064
       },
       {
         "feature": "VEHICLE_AGE",
         "display_name": "Vehicle Age (Years)",
-        "importance": 0.06526680622275229
+        "importance": 0.058145524468569014
       },
       {
         "feature": "TRAV_SP_CLEAN",
         "display_name": "Travel Speed (MPH)",
-        "importance": 0.05960941119121932
+        "importance": 0.05216940434887711
       },
       {
         "feature": "SPEED_OVER_LIMIT",
         "display_name": "Speed Over Limit (MPH)",
-        "importance": 0.03953053742864096
+        "importance": 0.03519658707584072
       }
     ],
     "fatal_importance": [
       {
         "feature": "VE_TOTAL",
         "display_name": "Total Vehicles in Crash",
-        "importance": 0.08600119565714169
+        "importance": 0.10202306135596358
       },
       {
         "feature": "AGE_CLEAN",
         "display_name": "Person Age",
-        "importance": 0.06770538649377503
+        "importance": 0.08875126017744649
       },
       {
         "feature": "TRAV_SP_CLEAN",
         "display_name": "Travel Speed (MPH)",
-        "importance": 0.06309365036967124
+        "importance": 0.05641070621429165
       },
       {
         "feature": "VEHICLE_AGE",
         "display_name": "Vehicle Age (Years)",
-        "importance": 0.05380288640365045
+        "importance": 0.05460540599486459
       },
       {
         "feature": "SPEED_OVER_LIMIT",
         "display_name": "Speed Over Limit (MPH)",
-        "importance": 0.02635690975964747
+        "importance": 0.024304043146607886
       }
     ],
     "fatal_risk_increase": [
       {
         "feature": "AGE_CLEAN",
         "display_name": "Person Age",
-        "mean_shap": 0.053539136602110585
+        "mean_shap": 0.05776527042080255
       },
       {
         "feature": "TRAV_SP_CLEAN",
         "display_name": "Travel Speed (MPH)",
-        "mean_shap": 0.048544119738496
+        "mean_shap": 0.03966749340304417
       },
       {
         "feature": "SPEED_OVER_LIMIT",
         "display_name": "Speed Over Limit (MPH)",
-        "mean_shap": -0.005864146819614141
+        "mean_shap": -0.006265122378570046
       },
       {
         "feature": "VEHICLE_AGE",
         "display_name": "Vehicle Age (Years)",
-        "mean_shap": -0.027640772148115375
+        "mean_shap": -0.030169518961619204
       },
       {
         "feature": "VE_TOTAL",
         "display_name": "Total Vehicles in Crash",
-        "mean_shap": -0.04317589537669175
+        "mean_shap": -0.05963924427248556
       }
     ],
     "fatal_risk_decrease": [
       {
         "feature": "AGE_CLEAN",
         "display_name": "Person Age",
-        "mean_shap": 0.053539136602110585
+        "mean_shap": 0.05776527042080255
       },
       {
         "feature": "TRAV_SP_CLEAN",
         "display_name": "Travel Speed (MPH)",
-        "mean_shap": 0.048544119738496
+        "mean_shap": 0.03966749340304417
       },
       {
         "feature": "SPEED_OVER_LIMIT",
         "display_name": "Speed Over Limit (MPH)",
-        "mean_shap": -0.005864146819614141
+        "mean_shap": -0.006265122378570046
       },
       {
         "feature": "VEHICLE_AGE",
         "display_name": "Vehicle Age (Years)",
-        "mean_shap": -0.027640772148115375
+        "mean_shap": -0.030169518961619204
       },
       {
         "feature": "VE_TOTAL",
         "display_name": "Total Vehicles in Crash",
-        "mean_shap": -0.04317589537669175
+        "mean_shap": -0.05963924427248556
       }
     ],
     "feature_descriptions": {
@@ -829,6 +829,14 @@
         "Midday": 2,
         "Morning_Rush": 3,
         "Night": 4,
+        "Unknown": 5
+      },
+      "VTRAFCON_CAT": {
+        "No_Control": 0,
+        "RR_Crossing": 1,
+        "School_Zone": 2,
+        "Sign_Control": 3,
+        "Traffic_Signal": 4,
         "Unknown": 5
       }
     }

@@ -156,7 +156,6 @@ merged = merged.merge(imp_agg, on=["CASENUM", "VEH_NO", "DATA_YEAR"], how="left"
 print(f"  +impairment: {len(merged):,}")
 
 # -- Weather: aggregate to crash level (worst weather) --
-weather = load_table("weather")
 # Use the accident-level WEATHER already included; skip multi-weather for simplicity
 
 # -- Crash-related factors: aggregate to crash level --
@@ -166,6 +165,35 @@ crashrf_agg = crashrf.groupby(["CASENUM", "DATA_YEAR"]).agg(
 ).reset_index()
 merged = merged.merge(crashrf_agg, on=["CASENUM", "DATA_YEAR"], how="left")
 print(f"  +crash factors: {len(merged):,}")
+
+# -- Pre-crash maneuver: aggregate to vehicle level --
+# MANEUVER: 0=Going Straight, 98=Not Reported, 99=Unknown — any other = active maneuver
+maneuver = load_table("maneuver")
+man_agg = maneuver.groupby(["CASENUM", "VEH_NO", "DATA_YEAR"]).agg(
+    HAS_PRE_CRASH_MANEUVER=("MANEUVER", lambda x: int(((x != 0) & (~x.isin([98, 99]))).any()))
+).reset_index()
+merged = merged.merge(man_agg, on=["CASENUM", "VEH_NO", "DATA_YEAR"], how="left")
+print(f"  +maneuver (pre-crash action): {len(merged):,}")
+
+# -- Driver risk factors: aggregate to vehicle level --
+# DRIVERRF: 0=None, >0=specific risk behavior (e.g. careless driving, erratic operation)
+driverrf_tbl = load_table("driverrf")
+driverrf_agg = driverrf_tbl.groupby(["CASENUM", "VEH_NO", "DATA_YEAR"]).agg(
+    HAS_DRIVER_RF=("DRIVERRF", lambda x: int((x != 0).any())),
+    NUM_DRIVER_RF=("DRIVERRF", lambda x: int((x != 0).sum()))
+).reset_index()
+merged = merged.merge(driverrf_agg, on=["CASENUM", "VEH_NO", "DATA_YEAR"], how="left")
+print(f"  +driver risk factors: {len(merged):,}")
+
+# -- Traffic violations: aggregate to vehicle level --
+# VIOLATION: 0=None, >0=specific violation (fail to yield, speeding, DUI, etc.)
+violatn_tbl = load_table("violatn")
+viol_agg = violatn_tbl.groupby(["CASENUM", "VEH_NO", "DATA_YEAR"]).agg(
+    HAS_VIOLATION=("VIOLATION", lambda x: int((x != 0).any())),
+    NUM_VIOLATIONS=("VIOLATION", lambda x: int((x != 0).sum()))
+).reset_index()
+merged = merged.merge(viol_agg, on=["CASENUM", "VEH_NO", "DATA_YEAR"], how="left")
+print(f"  +violations: {len(merged):,}")
 
 # ═══════════════════════════════════════════════════════════════════════
 # 6. FEATURE ENGINEERING
@@ -383,6 +411,32 @@ merged["DISTRACTED"] = merged["DISTRACTED"].fillna(0).astype(int)
 merged["NUM_DISTRACTIONS"] = merged["NUM_DISTRACTIONS"].fillna(0).astype(int)
 merged["NUM_CRASH_FACTORS"] = merged["NUM_CRASH_FACTORS"].fillna(0).astype(int)
 
+# -- Hit and run binary (from vehicle table) --
+# HIT_RUN: 0=No, 1=Yes (driver fled scene)
+merged["HIT_RUN_FLAG"] = merged["HIT_RUN"].apply(
+    lambda x: 1 if x == 1 else 0
+)
+
+# -- Traffic control device at scene (from vehicle table) --
+# VTRAFCON CRSS coding: 0=No Controls, 1-6=Signal types, 7-10=Sign types,
+#   20-28=RR Crossing devices, 40=School Zone, 97-99=Other/Unknown
+def categorize_vtrafcon(v):
+    if pd.isna(v): return "Unknown"
+    v = int(v)
+    if v == 0: return "No_Control"
+    if 1 <= v <= 6: return "Traffic_Signal"
+    if 7 <= v <= 10: return "Sign_Control"
+    if 20 <= v <= 28: return "RR_Crossing"
+    if v == 40: return "School_Zone"
+    return "Unknown"
+
+merged["VTRAFCON_CAT"] = merged["VTRAFCON"].apply(categorize_vtrafcon)
+
+# -- Fill NaN for new aggregated columns (non-linked vehicles get 0) --
+for col in ["HAS_PRE_CRASH_MANEUVER", "HAS_DRIVER_RF", "NUM_DRIVER_RF",
+            "HAS_VIOLATION", "NUM_VIOLATIONS"]:
+    merged[col] = merged[col].fillna(0).astype(int)
+
 # -- Speed limit categories --
 def categorize_speed_limit(sl):
     if pd.isna(sl) or sl in [98, 99]: return "Unknown"
@@ -425,10 +479,19 @@ for sev, label in sorted(severity_labels.items()):
     pct = cnt / len(merged) * 100
     print(f"  {sev} ({label}): {cnt:,} ({pct:.1f}%)")
 
+print(f"\nNew features added (vs. previous run):")
+for col in ["HAS_PRE_CRASH_MANEUVER", "HAS_DRIVER_RF", "NUM_DRIVER_RF",
+            "HAS_VIOLATION", "NUM_VIOLATIONS", "HIT_RUN_FLAG", "VTRAFCON_CAT"]:
+    if col in merged.columns:
+        if merged[col].dtype == object or str(merged[col].dtype) in ['string', 'category']:
+            print(f"  {col}: {merged[col].value_counts().to_dict()}")
+        else:
+            print(f"  {col}: mean={merged[col].mean():.3f}, sum={int(merged[col].sum())}")
+
 print(f"\nEngineered feature categories:")
 for col in ["BODY_TYPE_CAT", "LIGHT_CAT", "WEATHER_CAT", "COLLISION_TYPE",
             "AGE_GROUP", "RESTRAINT_CAT", "AIRBAG_CAT", "EJECTION_CAT",
-            "DEFORMATION_CAT", "SURFACE_CAT", "SPEED_LIMIT_CAT", "TIME_PERIOD"]:
+            "DEFORMATION_CAT", "SURFACE_CAT", "SPEED_LIMIT_CAT", "TIME_PERIOD", "VTRAFCON_CAT"]:
     vc = merged[col].value_counts()
     print(f"\n  {col}:")
     for val, cnt in vc.items():

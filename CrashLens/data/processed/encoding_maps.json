@@ -97,5 +97,13 @@
     "Morning_Rush": 3,
     "Night": 4,
     "Unknown": 5
+  },
+  "VTRAFCON_CAT": {
+    "No_Control": 0,
+    "RR_Crossing": 1,
+    "School_Zone": 2,
+    "Sign_Control": 3,
+    "Traffic_Signal": 4,
+    "Unknown": 5
   }
 }

@@ -170,8 +170,8 @@ criterion = nn.CrossEntropyLoss(weight=class_weights)
 optimizer = optim.AdamW(model.parameters(), lr=2e-3, weight_decay=1e-4)
 scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=12, eta_min=1e-5)
 
-EPOCHS = 12
-PATIENCE = 4
+EPOCHS = 6
+PATIENCE = 3
 best_val_f1 = 0
 patience_counter = 0
 train_history = []
