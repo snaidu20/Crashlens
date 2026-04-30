@@ -1521,9 +1521,9 @@ input[type="range"]::-moz-range-thumb {
       </div>
       <div class="glass" style="padding:var(--sp-5);display:flex;align-items:center;justify-content:center;">
         <div class="gauge-container">
-          <div class="gauge" data-gauge="57.3" data-color="var(--fatal)">
+          <div class="gauge" data-gauge="60.4" data-color="var(--fatal)">
             <svg viewBox="0 0 120 120"><circle class="gauge-bg" cx="60" cy="60" r="50"/><circle class="gauge-fill" cx="60" cy="60" r="50"/></svg>
-            <div class="gauge-center"><span class="gauge-value" style="color:var(--fatal);">57.3%</span><span class="gauge-label-text">Fatal Sens.</span></div>
+            <div class="gauge-center"><span class="gauge-value" style="color:var(--fatal);">60.4%</span><span class="gauge-label-text">Fatal Sens.</span></div>
           </div>
           <div style="font-size:var(--text-xs);font-weight:600;color:var(--text-secondary);">Transformer</div>
         </div>
@@ -1783,8 +1783,8 @@ const D = {
   },
   yearly: {
     years: [2020, 2021, 2022, 2023],
-    fatal: [1520, 1315, 1387, 1237],
-    total: [131962, 133734, 131175, 122388]
+    fatal: [1233, 1052, 1115, 979],
+    total: [121429, 123268, 121310, 111794]
   },
   kpis: [
     { value: '4,379', label: 'Fatal Outcomes', detail: '0.9% of all records', icon: '\u26A0\uFE0F', color: '#C62828', colorEnd: '#7B1FA2', bg: 'rgba(211,47,47,0.08)' },
@@ -1796,35 +1796,35 @@ const D = {
     'Random Forest':  { acc: 0.7199, bal: 0.4450, f1: 0.4300, fatal: 0.4853, time: 74.3 },
     'XGBoost':        { acc: 0.7141, bal: 0.4646, f1: 0.4530, fatal: 0.4626, time: 95.9 },
     'LightGBM':       { acc: 0.7124, bal: 0.4760, f1: 0.4502, fatal: 0.5431, time: 56.2 },
-    'FT-Transformer': { acc: 0.3548, bal: 0.4422, f1: 0.3121, fatal: 0.5726, time: null }
+    'FT-Transformer': { acc: 0.2913, bal: 0.4309, f1: 0.2877, fatal: 0.6043, time: null }
   },
   perClass: {
-    'Random Forest':  [0.8678, 0.2297, 0.3246, 0.3279, 0.3429],
-    'XGBoost':        [0.8639, 0.2985, 0.3326, 0.3393, 0.3387],
-    'LightGBM':       [0.8637, 0.3008, 0.3305, 0.3279, 0.3272],
-    'FT-Transformer': [0.5313, 0.2316, 0.2620, 0.2574, 0.2508]
+    'Random Forest':  [0.8685, 0.2173, 0.3278, 0.3312, 0.4051],
+    'XGBoost':        [0.8653, 0.3059, 0.3398, 0.3476, 0.4066],
+    'LightGBM':       [0.8649, 0.3052, 0.3323, 0.3400, 0.4084],
+    'FT-Transformer': [0.3635, 0.2095, 0.2505, 0.2876, 0.3275]
   },
   cm: [
-    [58886, 4419, 2451, 1138, 154],
-    [6950, 3596, 1812, 1030, 176],
-    [2563, 1600, 2792, 1418, 234],
-    [845, 690, 1140, 1717, 476],
-    [66, 43, 95, 302, 376]
+    [58944, 4411, 2503, 1052, 138],
+    [6931, 3668, 1803,  997, 165],
+    [2506, 1657, 2816, 1405, 223],
+    [ 817,  694, 1145, 1753, 459],
+    [  51,   39,   76,  237, 479]
   ],
   cmLabels: ['O', 'C', 'B', 'A', 'K'],
   globalShap: [
-    { name: 'Total Vehicles', val: 0.1227 },
-    { name: 'Person Age', val: 0.0944 },
-    { name: 'Vehicle Age', val: 0.0653 },
-    { name: 'Travel Speed', val: 0.0596 },
-    { name: 'Speed Over Limit', val: 0.0395 }
+    { name: 'Total Vehicles', val: 0.1246 },
+    { name: 'Person Age', val: 0.0874 },
+    { name: 'Vehicle Age', val: 0.0581 },
+    { name: 'Travel Speed', val: 0.0522 },
+    { name: 'Speed Over Limit', val: 0.0352 }
   ],
   fatalShap: [
-    { name: 'Total Vehicles', val: 0.0860 },
-    { name: 'Person Age', val: 0.0677 },
-    { name: 'Travel Speed', val: 0.0631 },
-    { name: 'Vehicle Age', val: 0.0538 },
-    { name: 'Speed Over Limit', val: 0.0264 }
+    { name: 'Total Vehicles', val: 0.1020 },
+    { name: 'Person Age', val: 0.0888 },
+    { name: 'Travel Speed', val: 0.0564 },
+    { name: 'Vehicle Age', val: 0.0546 },
+    { name: 'Speed Over Limit', val: 0.0243 }
   ],
   findings: [
     { title: 'Age is the strongest individual predictor', text: 'Older occupants face dramatically higher fatal crash risk. Persons 65+ are 3.2\u00d7 more likely to suffer fatal injuries than 25\u201334 year olds.', nlp: '"When the model sees an occupant aged 70+ in a crash, the predicted fatal probability increases by 12\u201318 percentage points — the single largest feature contribution."', icon: '\uD83D\uDC64', bg: 'var(--cyan-dim)', color: 'var(--cyan)' },

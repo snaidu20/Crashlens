@@ -41,7 +41,7 @@
 
 CrashLens is a complete machine learning pipeline that predicts traffic crash injury severity (5-class KABCO scale) using NHTSA crash data, with a focus on **explainability** through SHAP analysis. The project spans from raw government data to an interactive web dashboard — designed for transportation safety researchers, engineers, and policymakers.
 
-The pipeline processes **477,801 person-level crash records** from 205,874 unique crash events across 2020–2023, trains 4 models (Random Forest, XGBoost, LightGBM, FT-Transformer), and delivers results through a 7-tab interactive dashboard with dark/light theme support.
+The pipeline processes **477,801 person-level crash records** from 205,874 unique crash events across 2020–2023, trains 4 models (Random Forest, XGBoost, LightGBM, FT-Transformer), and delivers results through a 5-tab interactive dashboard with dark/light theme support.
 
 ---
 
@@ -429,11 +429,11 @@ Uses **SHAP (SHapley Additive exPlanations)** with TreeExplainer on the LightGBM
 
 | Rank | Feature | Mean |SHAP| | Interpretation |
 |------|---------|-------------|----------------|
-| 1 | Total Vehicles in Crash | 0.1227 | Single-vehicle crashes are deadlier (no energy dissipation) |
-| 2 | Person Age | 0.0944 | Older occupants (65+) face 3.2× higher fatal risk |
-| 3 | Vehicle Age (Years) | 0.0653 | Older vehicles lack modern safety systems |
-| 4 | Travel Speed (MPH) | 0.0596 | Each +10 MPH raises fatal probability ~15% |
-| 5 | Speed Over Limit (MPH) | 0.0395 | Independent risk beyond absolute speed |
+| 1 | Total Vehicles in Crash | 0.1246 | Single-vehicle crashes are deadlier (no energy dissipation) |
+| 2 | Person Age | 0.0874 | Older occupants (65+) face 3.2× higher fatal risk |
+| 3 | Vehicle Age (Years) | 0.0581 | Older vehicles lack modern safety systems |
+| 4 | Travel Speed (MPH) | 0.0522 | Each +10 MPH raises fatal probability ~15% |
+| 5 | Speed Over Limit (MPH) | 0.0352 | Independent risk beyond absolute speed |
 
 **Output:** `results/shap_results.json`
 
@@ -467,7 +467,7 @@ Consolidates all results into a single JSON file for the interactive dashboard:
 | **Learning Rate** | N/A | 0.05 | 0.05 | 2e-3 (cosine decay) |
 | **Regularization** | min_samples | subsample + colsample | L1(0.1) + L2(1.0) | Dropout(0.2) + weight decay |
 | **Imbalance Handling** | Class weights | Sample weights | Class weights | Class-weighted loss |
-| **Training Time** | 76s | 88s | 54s | 439s |
+| **Training Time** | 74s | 96s | 56s | 309s |
 | **Model Size** | 859 MB | 24 MB | 8.8 MB | 188 KB |
 
 ---
@@ -481,7 +481,7 @@ Consolidates all results into a single JSON file for the interactive dashboard:
 | Random Forest | 72.0% | 44.5% | 43.0% | 48.5% | 40.5% |
 | XGBoost | 71.4% | 46.5% | 45.3% | 46.3% | 40.7% |
 | **LightGBM** | **71.2%** | **47.6%** | **45.0%** | **54.3%** | **40.8%** |
-| FT-Transformer | 35.5% | 44.2% | 31.2% | **57.3%** | 30.8% |
+| FT-Transformer | 29.1% | 43.1% | 28.8% | **60.4%** | 32.8% |
 
 ### Per-Class F1 Scores (Test Set — LightGBM)
 
@@ -510,7 +510,7 @@ Actual K                 51     39      76     237     479
 
 1. **LightGBM achieves the best balance** of overall accuracy (71.2%) and fatal crash detection (54.3% sensitivity) — it's the recommended model for general deployment.
 
-2. **FT-Transformer detects 57.3% of fatal crashes** — evaluated from a partially-trained checkpoint (CPU constraint limited training to 6 epochs). It trades F1-macro for fatal sensitivity, suggesting value for safety-critical applications where missing a fatal crash has high cost.
+2. **FT-Transformer detects 60.4% of fatal crashes** — evaluated from a partially-trained checkpoint (CPU constraint limited training to 6 epochs). It trades F1-macro for fatal sensitivity, suggesting value for safety-critical applications where missing a fatal crash has high cost.
 
 3. **Top risk factors identified by SHAP:**
    - **Ejection** from vehicle → >20× fatality risk
@@ -528,17 +528,15 @@ Actual K                 51     39      76     237     479
 
 ## Interactive Dashboard
 
-The dashboard (`dashboard/index.html`) is a standalone single-file web application with 7 tabs:
+The dashboard (`dashboard/index.html`) is a standalone single-file web application with 5 tabs:
 
 | Tab | Content |
 |-----|---------|
-| **Overview** | KPI cards, severity distribution donut, fatal outcomes by year |
-| **Model Performance** | Accuracy/F1 trade-off chart, per-class F1 comparison, confusion matrix heatmap |
-| **Risk Factors** | SHAP global importance bars, fatal-specific importance, directional impact |
-| **AI Explainability** | Key findings cards with natural language SHAP interpretations |
-| **Scenario Explorer** | Interactive "what-if" tool: adjust crash conditions and see predicted severity |
+| **Overview & Methodology** | KPI cards, severity/yearly charts, gauges, data transparency card, pipeline steps, tech stack |
+| **Model Performance** | Accuracy/F1 trade-off chart, per-class F1 comparison, LightGBM confusion matrix heatmap |
+| **Risk Factors** | SHAP global importance bars, fatal-specific importance |
+| **Datasets** | All 9 CRSS CSV source files, record counts, and columns extracted per table |
 | **Recommendations** | Critical driver alerts, often-overlooked risk factors, policy recommendations |
-| **Methodology** | Step-by-step pipeline visualization, technical stack |
 
 **Features:**
 - Dark/light theme toggle (top-right icon)
